@@ -44,16 +44,10 @@ const LiveMonitor = () => {
       setLoading(false);
     }
   };
-
   const fetchConversations = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/api/v1/chat/bot/${selectedBotId}/conversations`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setConversations(data);
-      }
+      const response = await api.get(`/chat/bot/${selectedBotId}/conversations`);
+      setConversations(response.data);
     } catch (error) {
       console.error("Error fetching conversations", error);
     }
@@ -61,18 +55,12 @@ const LiveMonitor = () => {
 
   const fetchHistory = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/api/v1/chat/bot/${selectedBotId}/history/${selectedJid}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setMessages(data);
-      }
+      const response = await api.get(`/chat/bot/${selectedBotId}/history/${selectedJid}`);
+      setMessages(response.data);
     } catch (error) {
       console.error("Error fetching history", error);
     }
   };
-
   return (
     <div className="flex h-[calc(100vh-8rem)] bg-dark-200 rounded-3xl border border-dark-100 overflow-hidden shadow-2xl">
       {/* Sidebar de Chats */}

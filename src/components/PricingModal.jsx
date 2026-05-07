@@ -1,4 +1,5 @@
 import React from 'react';
+import api from '../config/axios';
 import useAuthStore from '../store/useAuthStore';
 
 const PricingModal = ({ isOpen, onClose }) => {
@@ -10,23 +11,12 @@ const PricingModal = ({ isOpen, onClose }) => {
   const handleUpgrade = async (newTier) => {
     setLoading(true);
     try {
-      const response = await fetch('http://localhost:8080/api/v1/subscription/upgrade', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ tier: newTier })
-      });
-
-      if (response.ok) {
-        await refreshUser();
-        onClose();
-      } else {
-        alert('Error al actualizar el plan');
-      }
+      const response = await api.post('/subscription/upgrade', { tier: newTier });
+      await refreshUser();
+      onClose();
     } catch (error) {
       console.error('Error upgrading plan', error);
+      alert('Error al actualizar el plan');
     } finally {
       setLoading(false);
     }

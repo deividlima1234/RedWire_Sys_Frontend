@@ -52,7 +52,8 @@ const useAuthStore = create((set) => ({
     if (!currentToken) return;
 
     try {
-      const response = await fetch('http://localhost:8080/api/v1/auth/me', {
+      const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1';
+      const response = await fetch(`${apiBaseUrl}/auth/me`, {
         headers: {
           'Authorization': `Bearer ${currentToken}`
         }

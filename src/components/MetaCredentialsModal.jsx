@@ -113,7 +113,7 @@ const MetaCredentialsModal = ({ isOpen, onClose, bot, onSaved }) => {
               Obtén estas credenciales en tu panel de <a href="https://developers.facebook.com/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline font-bold">Meta Developers</a> en la sección de WhatsApp. Configura la URL del Webhook de tu bot apuntando a:
             </p>
             <div className="bg-dark-300 p-2.5 rounded font-mono text-[11px] text-gray-300 select-all border border-dark-100 break-all">
-              http://localhost:8080/api/v1/webhooks/meta/{bot.id}
+              {import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1'}/webhooks/meta/{bot.id}
             </div>
           </div>
 

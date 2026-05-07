@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import api from '../../config/axios';
 import useAuthStore from '../../store/useAuthStore';
 
 const AdminUsers = () => {
@@ -23,15 +24,8 @@ const AdminUsers = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('http://localhost:8080/api/v1/admin/users', {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-      if (response.ok) {
-        const data = await response.json();
-        setUsers(data);
-      }
+      const response = await api.get('/admin/users');
+      setUsers(response.data);
     } catch (error) {
       console.error('Error fetching users', error);
     } finally {
@@ -51,29 +45,18 @@ const AdminUsers = () => {
     if (!selectedUser) return;
     setIsSaving(true);
     try {
-      const response = await fetch(`http://localhost:8080/api/v1/admin/users/${selectedUser.id}/role-tier`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          role: selectedRole,
-          subscriptionTier: selectedTier
-        })
+      const response = await api.put(`/admin/users/${selectedUser.id}/role-tier`, {
+        role: selectedRole,
+        subscriptionTier: selectedTier
       });
 
-      if (response.ok) {
-        // Actualizar lista de usuarios localmente
-        setUsers(users.map(u => u.id === selectedUser.id ? {
-          ...u,
-          role: selectedRole,
-          subscriptionTier: selectedTier
-        } : u));
-        setIsModalOpen(false);
-      } else {
-        alert('Error al actualizar el usuario');
-      }
+      // Actualizar lista de usuarios localmente
+      setUsers(users.map(u => u.id === selectedUser.id ? {
+        ...u,
+        role: selectedRole,
+        subscriptionTier: selectedTier
+      } : u));
+      setIsModalOpen(false);
     } catch (error) {
       console.error('Error updating user', error);
       alert('Error en el servidor al actualizar el usuario');

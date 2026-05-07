@@ -512,11 +512,11 @@ const BotDiagnosticsModal = ({ isOpen, onClose, bot, onRefresh }) => {
                   <div>
                     <p className="text-[9px] text-yellow-500 font-black uppercase">URL del Callback para Webhooks de Meta</p>
                     <p className="text-gray-300 mt-1 font-mono text-[11px] select-all truncate">
-                      http://localhost:8080/api/v1/webhooks/incoming-message
+                      {import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1'}/webhooks/incoming-message
                     </p>
                   </div>
                   <button 
-                    onClick={() => handleCopy('http://localhost:8080/api/v1/webhooks/incoming-message', 'URL del Webhook')}
+                    onClick={() => handleCopy(`${import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1'}/webhooks/incoming-message`, 'URL del Webhook')}
                     className="py-1.5 px-3 self-end md:self-center rounded-lg bg-dark-200 hover:bg-primary text-gray-400 hover:text-white transition-all active:scale-95 text-[10px] font-bold shrink-0"
                   >
                     {copiedField === 'URL del Webhook' ? '✓ ¡Copiado!' : 'Copiar URL'}
