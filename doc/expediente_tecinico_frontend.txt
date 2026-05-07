@@ -1,0 +1,105 @@
+# Expediente Técnico de Desarrollo: Frontend (SPA)
+**Proyecto:** RedWire System
+**Desarrollado por:** EddamCore
+**Fecha de Emisión:** 4 de Mayo de 2026
+
+---
+
+## 1. Resumen Ejecutivo
+El presente documento define la arquitectura, stack tecnológico, sistema de diseño y especificaciones técnicas para el desarrollo de la interfaz de usuario (Frontend) de **RedWire System**. La aplicación será una *Single Page Application (SPA)* altamente interactiva, diseñada para ofrecer una experiencia fluida, tipo aplicación de escritorio, centrada en un constructor visual de flujos de conversación mediante nodos (Flow Builder).
+
+## 2. Arquitectura de la Aplicación
+El frontend se construirá bajo una arquitectura basada en componentes, priorizando la modularidad, la reutilización de código y el rendimiento en el renderizado del lienzo de nodos.
+
+*   **Patrón de Arquitectura:** Feature-Sliced Design (Diseño por Funcionalidades) para agrupar componentes, hooks y estados por dominio de negocio (ej. `auth`, `flow-builder`, `billing`).
+*   **Gestión de Estado:** Arquitectura de estado dividida:
+    *   *Estado del Servidor (Server State):* Para peticiones a la API, caché y sincronización de datos.
+    *   *Estado Cliente/UI (Client State):* Para la manipulación en tiempo real de coordenadas de nodos, modales y temas.
+
+## 3. Stack Tecnológico Frontend
+*   **Librería Core:** React.js (v18 o superior) usando Functional Components y Hooks.
+*   **Enrutador:** React Router DOM (v6).
+*   **Constructor Visual (Flow Builder):** React Flow (Esencial para la manipulación DOM optimizada de nodos y conexiones SVG).
+*   **Estilos y UI:** Tailwind CSS (Framework de utilidad) integrado con PostCSS.
+*   **Gestión de Estado Global:** Zustand (Elegido sobre Redux por su ligereza y excelente integración con React Flow para estados mutables rápidos).
+*   **Peticiones HTTP y Caché:** Axios + React Query (TanStack Query) para manejo de *loading states*, reintentos y caché de peticiones al Backend Core de Spring Boot.
+*   **Bundler/Build Tool:** Vite (Reemplazo de Webpack para tiempos de compilación ultrarrápidos y recarga en caliente instantánea).
+
+---
+
+## 4. Sistema de Diseño (UI/UX) e Identidad "EddamCore"
+La interfaz de RedWire System reflejará una estética *Cyberpunk/Tech* de alto contraste, diseñada para reducir la fatiga visual en sesiones largas de configuración.
+
+### Configuración Base en `tailwind.config.js`:
+*   **Color Primario (Backgrounds):** Negro Puro (`#000000`) y grises muy oscuros (ej. `#111111`, `#1A1A1A`) para paneles secundarios.
+*   **Color Secundario (Textos y Bordes inactivos):** Blanco Nítido (`#FFFFFF`) y grises claros para textos secundarios.
+*   **Color de Acento (Acciones y Alertas):** Rojo Neón (`#FF0033`). Se usará para botones primarios, *hover states*, conexiones activas entre nodos y notificaciones críticas.
+*   **Tipografía:** Fuentes sans-serif técnicas y legibles (ej. *Inter*, *Roboto Mono* para códigos y variables).
+
+### Componentes Core (Sistema Atómico):
+Se desarrollará una librería de componentes base estandarizada (Botones, Inputs, Modales, Tooltips, Toasts) estilizados estrictamente con clases de Tailwind CSS para garantizar coherencia en toda la plataforma.
+
+---
+
+## 5. El "Core" Visual: Implementación del Flow Builder
+El corazón de la aplicación es el lienzo donde el usuario diseña el comportamiento del bot. Esta vista es crítica para el rendimiento.
+
+### Especificaciones Técnicas del Lienzo (React Flow):
+1.  **Custom Nodes (Nodos Personalizados):** Se registrarán tipos de nodos específicos para el negocio:
+    *   `TriggerNode`: Nodo de inicio oscuro con un borde rojo (#FF0033).
+    *   `MessageNode`: Nodo para enviar texto/imagen.
+    *   `ConditionNode`: Nodo con salidas múltiples (Verdadero/Falso).
+2.  **Custom Edges (Conexiones):** Animaciones SVG (partículas fluyendo) en las líneas de conexión para indicar visualmente el recorrido del flujo cuando se prueba.
+3.  **Sincronización JSON:** 
+    *   Se creará un *Hook* personalizado (`useFlowSync`) que escuchará los cambios en Zustand.
+    *   Al hacer clic en "Guardar y Desplegar", el estado de React Flow (nodos y edges) se serializará a un único objeto JSON (`JSON.stringify`) y se enviará mediante un `POST/PUT` a la API de Spring Boot.
+
+---
+
+## 6. Estructura de Vistas (Enrutamiento)
+
+*   **Públicas:**
+    *   `/login` y `/register`: Formularios de autenticación.
+*   **Privadas (Requieren Token JWT):**
+    *   `/dashboard`: Panel de control general. Estadísticas, estado de la conexión del bot (Online/Offline) y selección de instancias.
+    *   `/bot/{id}/setup`: Pantalla para escanear el código QR. **Importante:** Esta vista implementará *Polling* o *WebSockets* (a través de Node.js Worker) para refrescar el QR cada 20 segundos y detectar automáticamente cuando el escaneo es exitoso.
+    *   `/bot/{id}/flow`: El lienzo a pantalla completa (React Flow). Sin distracciones, con una barra de herramientas lateral (Sidebar) para arrastrar y soltar nodos al lienzo (Drag and Drop).
+    *   `/settings`: Gestión de cuenta, mejora de planes (Billing) y logs de errores del bot.
+
+---
+
+## 7. Ciberseguridad Frontend y Consumo de APIs
+1.  **Gestión de JWT (JSON Web Tokens):** 
+    *   El token de acceso no se guardará en `localStorage` por motivos de seguridad (vulnerabilidad a XSS). Se almacenará en memoria (Zustand) y el Backend enviará un *Refresh Token* mediante una cookie segura (`HttpOnly`, `Secure`).
+2.  **Interceptores de Axios:** Se configurará un interceptor global que:
+    *   Inyecte el token *Bearer* en cada petición.
+    *   Capture errores `401 Unauthorized` e intente renovar el token silenciosamente antes de expulsar al usuario a la pantalla de login.
+3.  **Sanitización de Entradas:** Aunque el backend valide, el frontend usará esquemas de validación (ej. *Zod* o *Yup* con React Hook Form) para garantizar que los textos introducidos en los nodos no rompan el formato JSON.
+
+---
+
+## 8. Rendimiento y Optimización
+*   **Code Splitting y Lazy Loading:** Dado que React Flow es una librería pesada, la vista `/bot/{id}/flow` se cargará asíncronamente (`React.lazy`) para que el login y el dashboard carguen en milisegundos.
+*   **Memoización:** Uso exhaustivo de `useMemo` y `useCallback` en las funciones de actualización del lienzo de nodos para evitar re-renderizados innecesarios que causen tirones (lag) visuales al arrastrar objetos.
+*   **Optimistic UI:** Cuando el usuario conecte dos nodos o cambie un texto, la UI se actualizará instantáneamente, y la petición de auto-guardado en segundo plano se enviará de forma debounced (con retraso, ej. 2 segundos después del último cambio) al backend.
+
+---
+
+## 9. Estructura de Directorios Propuesta
+```text
+src/
+├── assets/          # Imágenes, íconos, logos de EddamCore
+├── components/      # Componentes UI reutilizables (Botones, Modales, Inputs)
+├── config/          # Instancia de Axios, React Query client
+├── features/        # Módulos por dominio funcional
+│   ├── auth/        # Login, registro, hooks de auth
+│   ├── bots/        # Listado de bots, escaneo de QR
+│   └── flow-builder/# Componentes de React Flow, Custom Nodes, Sidebar
+├── hooks/           # Custom hooks globales
+├── layouts/         # Envoltorios de página (SidebarLayout, AuthLayout)
+├── pages/           # Vistas principales enrutadas
+├── store/           # Archivos de estado global (Zustand)
+├── utils/           # Formateadores, validadores, helpers
+├── App.jsx          # Configuración de Router y Providers
+└── main.jsx         # Punto de entrada y montaje de React
+```
