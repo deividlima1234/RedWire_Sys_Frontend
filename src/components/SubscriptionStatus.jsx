@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import useAuthStore from '../store/useAuthStore';
 import PricingModal from './PricingModal';
 
-const SubscriptionStatus = () => {
+const SubscriptionStatus = ({ isCollapsed }) => {
   const { user, refreshUser } = useAuthStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   
@@ -27,6 +27,27 @@ const SubscriptionStatus = () => {
       default: return 'text-gray-400 border-gray-400';
     }
   };
+
+  if (isCollapsed) {
+    return (
+      <div className="flex flex-col items-center justify-center py-2 border-t border-dark-100/30">
+        <button 
+          onClick={() => setIsModalOpen(true)}
+          className={`w-10 h-10 rounded-xl flex items-center justify-center border transition-all shadow-lg active:scale-95 ${
+            tier === 'VIP' 
+              ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-500 hover:bg-yellow-500/20' 
+              : tier === 'STANDARD' 
+                ? 'bg-blue-500/10 border-blue-500/30 text-blue-400 hover:bg-blue-500/20' 
+                : 'bg-dark-100 border-dark-100 text-gray-400 hover:text-white'
+          }`}
+          title={`Plan: ${tier} - Ver Planes`}
+        >
+          {tier === 'VIP' ? '💎' : tier === 'STANDARD' ? '⚡' : '🆓'}
+        </button>
+        <PricingModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      </div>
+    );
+  }
 
   return (
     <div className="bg-dark-300 p-4 rounded-lg border border-dark-100 shadow-inner">
