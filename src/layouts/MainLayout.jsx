@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import useAuthStore from '../store/useAuthStore';
 import SubscriptionStatus from '../components/SubscriptionStatus';
 import UserProfileModal from '../components/UserProfileModal';
@@ -10,7 +10,9 @@ const MainLayout = () => {
   const [bots, setBots] = useState([]);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
+  const isFlowEditor = location.pathname.includes('/flow');
   const isAdmin = user?.role === 'ROLE_ADMIN' || user?.role === 'ADMIN';
 
   useEffect(() => {
@@ -36,13 +38,14 @@ const MainLayout = () => {
 
   return (
     <div className="flex h-screen bg-dark-300 text-white">
-      <aside className="w-72 bg-dark-200 border-r border-dark-100 flex flex-col shadow-2xl relative z-20">
-        <div className="p-6 border-b border-dark-100">
-          <h1 className="text-2xl font-black text-primary font-mono tracking-widest flex items-center">
-            <div className="w-8 h-8 bg-primary rounded mr-2 flex items-center justify-center text-dark-300">R</div>
-            REDWIRE<span className="text-gray-400 font-light">SYS</span>
-          </h1>
-        </div>
+      {!isFlowEditor && (
+        <aside className="w-72 bg-dark-200 border-r border-dark-100 flex flex-col shadow-2xl relative z-20">
+          <div className="p-6 border-b border-dark-100">
+            <h1 className="text-2xl font-black text-primary font-mono tracking-widest flex items-center">
+              <div className="w-8 h-8 bg-primary rounded mr-2 flex items-center justify-center text-dark-300">R</div>
+              REDWIRE<span className="text-gray-400 font-light">SYS</span>
+            </h1>
+          </div>
         
         <nav className="flex-1 p-4 space-y-8 overflow-y-auto custom-scrollbar">
           <div>
@@ -134,9 +137,10 @@ const MainLayout = () => {
           </button>
         </div>
       </aside>
+      )}
 
       <main className="flex-1 flex flex-col overflow-hidden relative bg-dark-300">
-        <div className="p-8 overflow-auto h-full w-full">
+        <div className={`${isFlowEditor ? 'p-0' : 'p-8'} overflow-auto h-full w-full`}>
             <Outlet />
         </div>
       </main>

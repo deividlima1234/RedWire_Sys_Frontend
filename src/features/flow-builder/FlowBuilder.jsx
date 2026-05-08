@@ -381,7 +381,7 @@ const FlowBuilder = () => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-dark-300 relative -m-8">
+    <div className="flex flex-col h-full bg-dark-300 relative">
       {/* High-tech Deployment Overlay */}
       {isSaving && (
         <div className="fixed inset-0 bg-dark-300/90 backdrop-blur-md z-50 flex flex-col items-center justify-center animate-fade-in">
