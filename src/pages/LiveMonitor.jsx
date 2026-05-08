@@ -9,6 +9,7 @@ const LiveMonitor = () => {
   const [loading, setLoading] = useState(true);
   const [bots, setBots] = useState([]);
   const [selectedBotId, setSelectedBotId] = useState(null);
+  const [showChatsList, setShowChatsList] = useState(true);
   const { token } = useAuthStore();
 
   useEffect(() => {
@@ -44,6 +45,7 @@ const LiveMonitor = () => {
       setLoading(false);
     }
   };
+
   const fetchConversations = async () => {
     try {
       const response = await api.get(`/chat/bot/${selectedBotId}/conversations`);
@@ -61,16 +63,34 @@ const LiveMonitor = () => {
       console.error("Error fetching history", error);
     }
   };
+
   return (
-    <div className="flex h-[calc(100vh-8rem)] bg-dark-200 rounded-3xl border border-dark-100 overflow-hidden shadow-2xl">
+    <div className="flex h-[calc(100vh-12rem)] md:h-[calc(100vh-8rem)] bg-dark-200 rounded-2xl md:rounded-3xl border border-dark-100 overflow-hidden shadow-2xl">
       {/* Sidebar de Chats */}
-      <div className="w-80 border-r border-dark-100 flex flex-col bg-dark-200/50">
-        <div className="p-6 border-b border-dark-100">
-          <h2 className="text-xl font-black text-white tracking-tighter uppercase">LIVE MONITOR</h2>
+      <div className={`
+        flex flex-col bg-dark-200/50 transition-all duration-300 ease-in-out
+        ${showChatsList ? 'md:w-80 md:border-r md:border-dark-100' : 'md:w-0 md:overflow-hidden md:border-r-0'}
+        ${selectedJid ? 'hidden md:flex' : 'w-full flex'}
+      `}>
+        <div className="p-4 md:p-6 border-b border-dark-100 flex-shrink-0">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg md:text-xl font-black text-white tracking-tighter uppercase">LIVE MONITOR</h2>
+            
+            {/* Desktop Close Chats list button */}
+            <button
+              onClick={() => setShowChatsList(false)}
+              className="hidden md:flex text-gray-500 hover:text-white hover:bg-dark-100 p-1.5 rounded-lg transition-all"
+              title="Ocultar Chats"
+            >
+              <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M11 19l-7-7 7-7" />
+              </svg>
+            </button>
+          </div>
           <select 
-            value={selectedBotId} 
+            value={selectedBotId || ''} 
             onChange={(e) => setSelectedBotId(e.target.value)}
-            className="w-full mt-4 bg-dark-100 border border-dark-100 rounded-lg px-3 py-2 text-xs font-bold text-primary focus:outline-none"
+            className="w-full mt-3 md:mt-4 bg-dark-100 border border-dark-100 rounded-lg px-3 py-2 text-xs font-bold text-primary focus:outline-none"
           >
             {bots.map(bot => (
               <option key={bot.id} value={bot.id}>{bot.phoneNumber || 'Bot sin número'}</option>
@@ -90,11 +110,13 @@ const LiveMonitor = () => {
               lastText = lastText.substring(6);
             }
 
+            const isActive = selectedJid === conv.remoteJid;
+
             return (
               <div 
                 key={conv.remoteJid}
                 onClick={() => setSelectedJid(conv.remoteJid)}
-                className={`p-4 border-b border-dark-100 cursor-pointer transition-all hover:bg-dark-100/50 ${selectedJid === conv.remoteJid ? 'bg-primary/10 border-l-4 border-l-primary' : ''}`}
+                className={`p-4 border-b border-dark-100 cursor-pointer transition-all hover:bg-dark-100/50 ${isActive ? 'bg-primary/10 border-l-4 border-l-primary' : ''}`}
               >
                 <div className="flex justify-between items-start mb-1">
                   <span className="text-xs font-black text-gray-200 truncate w-32">{conv.remoteJid.split('@')[0]}</span>
@@ -110,20 +132,51 @@ const LiveMonitor = () => {
       </div>
 
       {/* Ventana de Chat */}
-      <div className="flex-1 flex flex-col bg-dark-300/30">
+      <div className={`
+        flex-1 flex flex-col bg-dark-300/30 transition-all duration-300
+        ${selectedJid ? 'flex w-full' : 'hidden md:flex'}
+      `}>
         {selectedJid ? (
           <>
-            <div className="p-6 border-b border-dark-100 bg-dark-200/30 flex items-center">
-              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-black mr-4 border border-primary/20">
-                {selectedJid.charAt(0).toUpperCase()}
-              </div>
-              <div>
-                <h3 className="text-sm font-black text-white">{selectedJid}</h3>
-                <span className="text-[10px] text-green-500 font-bold uppercase tracking-widest">En Línea con Bot</span>
+            <div className="p-4 md:p-6 border-b border-dark-100 bg-dark-200/30 flex items-center justify-between flex-shrink-0">
+              <div className="flex items-center min-w-0">
+                {/* Back button for mobile */}
+                <button
+                  onClick={() => setSelectedJid(null)}
+                  className="p-1.5 rounded-lg border border-dark-100/50 text-gray-400 hover:text-white hover:bg-dark-100 transition-all mr-3 md:hidden flex flex-shrink-0 animate-fade-in"
+                  title="Volver a los chats"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+
+                {/* Hamburger button to toggle sidebar on desktop */}
+                <button
+                  onClick={() => setShowChatsList(!showChatsList)}
+                  className={`p-1.5 rounded-lg border transition-all mr-3 md:flex hidden flex-shrink-0 ${
+                    showChatsList 
+                      ? 'bg-primary/5 border-primary/20 text-primary' 
+                      : 'bg-dark-100 border-dark-100 text-gray-400 hover:text-white'
+                  }`}
+                  title={showChatsList ? "Ocultar lista de chats" : "Mostrar lista de chats"}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                </button>
+
+                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-black mr-4 border border-primary/20 flex-shrink-0">
+                  {selectedJid.charAt(0).toUpperCase()}
+                </div>
+                <div className="min-w-0">
+                  <h3 className="text-sm font-black text-white truncate max-w-[150px] md:max-w-[300px]">{selectedJid.split('@')[0]}</h3>
+                  <span className="text-[10px] text-green-500 font-bold uppercase tracking-widest block leading-tight mt-0.5">En Línea con Bot</span>
+                </div>
               </div>
             </div>
             
-            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+            <div className="flex-1 overflow-y-auto p-4 md:p-6 space-y-4">
               {messages.map((msg, i) => {
                 // Parseo de botones si contiene el delimitador '||btn:'
                 let cleanText = msg.text || '';
@@ -171,7 +224,7 @@ const LiveMonitor = () => {
                 return (
                   <div key={i} className={`flex ${isOutgoing ? 'justify-end' : 'justify-start'}`}>
                     <div 
-                      className={`max-w-[75%] p-4 rounded-2xl text-sm shadow-xl transition-all ${
+                      className={`max-w-[85%] md:max-w-[75%] p-3.5 md:p-4 rounded-2xl text-sm shadow-xl transition-all ${
                         isOutgoing 
                           ? hasInteractive
                             ? 'bg-dark-100 text-gray-200 rounded-tr-none border border-primary/40 shadow-[0_0_30px_rgba(var(--color-primary),0.02)]' 
@@ -267,9 +320,9 @@ const LiveMonitor = () => {
             </div>
           </>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-gray-500">
-            <svg className="w-16 h-16 mb-4 opacity-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
-            <p className="text-xs font-black uppercase tracking-widest text-gray-600">Selecciona una conversación</p>
+          <div className="flex-1 flex flex-col items-center justify-center text-gray-500 p-6 text-center">
+            <svg className="w-16 h-16 mb-4 opacity-10 text-primary animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
+            <p className="text-xs font-black uppercase tracking-widest text-gray-600">Selecciona una conversación para monitorear en vivo</p>
           </div>
         )}
       </div>
