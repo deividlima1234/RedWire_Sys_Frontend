@@ -11,6 +11,7 @@ const MainLayout = () => {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -265,7 +266,7 @@ const MainLayout = () => {
             
             {/* Logout button (icon when collapsed) */}
             <button 
-              onClick={handleLogout}
+              onClick={() => setIsLogoutModalOpen(true)}
               className={`flex items-center justify-center bg-dark-100 text-gray-300 rounded-lg hover:bg-red-500/10 hover:text-red-500 transition-all font-bold border border-transparent hover:border-red-500/20 ${
                 isSidebarCollapsed ? 'w-10 h-10 p-0 mt-3 mx-auto' : 'w-full py-2.5 px-4 text-xs'
               }`}
@@ -294,6 +295,47 @@ const MainLayout = () => {
         isOpen={isProfileModalOpen} 
         onClose={() => setIsProfileModalOpen(false)} 
       />
+
+      {/* Modal de Confirmación de Cierre de Sesión */}
+      {isLogoutModalOpen && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center animate-fade-in p-4">
+          <div className="bg-dark-200 border border-dark-100 p-6 rounded-2xl max-w-sm w-full shadow-2xl relative overflow-hidden animate-scale-in">
+            {/* Ambient Accent Light */}
+            <div className="absolute -top-12 -left-12 w-24 h-24 bg-red-500/10 rounded-full blur-2xl"></div>
+            
+            {/* Red Warning Exit Icon */}
+            <div className="w-12 h-12 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 mx-auto mb-4">
+              <svg className="w-6 h-6 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+            </div>
+
+            {/* Modal Title & Text */}
+            <h3 className="text-white text-base font-bold text-center mb-2 uppercase tracking-wider font-mono">
+              ¿Cerrar Sesión?
+            </h3>
+            <p className="text-gray-400 text-xs text-center leading-relaxed mb-6">
+              ¿Estás seguro de que deseas salir de tu cuenta? Se detendrá tu sesión de administración actual en este navegador.
+            </p>
+
+            {/* Modal Action Triggers */}
+            <div className="flex gap-3">
+              <button
+                onClick={() => setIsLogoutModalOpen(false)}
+                className="flex-1 py-2.5 px-4 bg-dark-100 hover:bg-dark-100/80 border border-white/5 text-gray-400 hover:text-white rounded-xl text-xs font-bold transition-all active:scale-95"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleLogout}
+                className="flex-1 py-2.5 px-4 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white rounded-xl text-xs font-bold transition-all shadow-lg shadow-red-500/20 hover:shadow-red-500/30 active:scale-95 uppercase tracking-wider font-mono"
+              >
+                Cerrar Sesión
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
