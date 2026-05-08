@@ -56,7 +56,7 @@ const FlowBuilder = () => {
   const { user } = useAuthStore();
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
   const [upgradeAlert, setUpgradeAlert] = useState(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   // Historial para deshacer / rehacer
   const [history, setHistory] = useState({
@@ -406,19 +406,27 @@ const FlowBuilder = () => {
       )}
 
       <div className="bg-dark-200 border-b border-dark-100 p-4 flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
-        <div className="flex justify-between items-center w-full md:w-auto">
-          <div>
-            <h2 className="text-white font-bold text-lg font-mono">Flow Editor</h2>
-            <p className="text-gray-400 text-xs">Design your conversational logic</p>
+        <div className="flex justify-between items-center w-full md:w-auto gap-4">
+          <div className="flex items-center gap-3">
+            {/* Hamburger toggle button for Nodes Library */}
+            <button
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className={`p-2 rounded-lg border transition-all ${
+                isSidebarOpen 
+                  ? 'bg-primary/10 border-primary/30 text-primary hover:bg-primary/20' 
+                  : 'bg-dark-100 border-dark-100 text-gray-400 hover:text-white hover:bg-dark-100/80'
+              }`}
+              title={isSidebarOpen ? "Ocultar Biblioteca de Nodos" : "Mostrar Biblioteca de Nodos"}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            <div>
+              <h2 className="text-white font-bold text-lg font-mono leading-none mb-1">Flow Editor</h2>
+              <p className="text-gray-400 text-[11px]">Design your conversational logic</p>
+            </div>
           </div>
-          {/* Mobile indicator for node library */}
-          <button 
-            onClick={() => setIsSidebarOpen(true)}
-            className="md:hidden flex items-center gap-1.5 bg-dark-100 border border-dark-100 hover:border-primary/50 text-gray-300 hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
-          >
-            <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-            Nodos
-          </button>
         </div>
 
         {/* Controles de Historial (Deshacer/Rehacer) */}
