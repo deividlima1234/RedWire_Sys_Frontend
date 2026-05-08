@@ -56,6 +56,7 @@ const FlowBuilder = () => {
   const { user } = useAuthStore();
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
   const [upgradeAlert, setUpgradeAlert] = useState(null);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Historial para deshacer / rehacer
   const [history, setHistory] = useState({
@@ -193,6 +194,35 @@ const FlowBuilder = () => {
 
       takeSnapshot();
       setNodes((nds) => nds.concat(newNode));
+    },
+    [reactFlowInstance, setNodes, takeSnapshot]
+  );
+
+  const handleAddNodeClick = useCallback(
+    (type) => {
+      let position = { x: 250, y: 150 };
+      if (reactFlowInstance) {
+        const flowWrapperRect = reactFlowWrapper.current?.getBoundingClientRect();
+        if (flowWrapperRect) {
+          const width = flowWrapperRect.width;
+          const height = flowWrapperRect.height;
+          position = reactFlowInstance.screenToFlowPosition({
+            x: flowWrapperRect.left + width / 2 - 75,
+            y: flowWrapperRect.top + height / 2 - 40,
+          });
+        }
+      }
+
+      const newNode = {
+        id: getId(),
+        type,
+        position,
+        data: { label: `${type} node` },
+      };
+
+      takeSnapshot();
+      setNodes((nds) => nds.concat(newNode));
+      setIsSidebarOpen(false);
     },
     [reactFlowInstance, setNodes, takeSnapshot]
   );
@@ -375,14 +405,24 @@ const FlowBuilder = () => {
         </div>
       )}
 
-      <div className="bg-dark-200 border-b border-dark-100 p-4 flex justify-between items-center">
-        <div>
-          <h2 className="text-white font-bold text-lg font-mono">Flow Editor</h2>
-          <p className="text-gray-400 text-xs">Design your conversational logic</p>
+      <div className="bg-dark-200 border-b border-dark-100 p-4 flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
+        <div className="flex justify-between items-center w-full md:w-auto">
+          <div>
+            <h2 className="text-white font-bold text-lg font-mono">Flow Editor</h2>
+            <p className="text-gray-400 text-xs">Design your conversational logic</p>
+          </div>
+          {/* Mobile indicator for node library */}
+          <button 
+            onClick={() => setIsSidebarOpen(true)}
+            className="md:hidden flex items-center gap-1.5 bg-dark-100 border border-dark-100 hover:border-primary/50 text-gray-300 hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
+          >
+            <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            Nodos
+          </button>
         </div>
 
         {/* Controles de Historial (Deshacer/Rehacer) */}
-        <div className="flex items-center space-x-2 bg-dark-100 p-1.5 rounded-lg border border-dark-100/30">
+        <div className="flex items-center space-x-2 bg-dark-100 p-1.5 rounded-lg border border-dark-100/30 w-full md:w-auto justify-center md:justify-start">
           <button
             onClick={undo}
             disabled={history.past.length === 0}
@@ -402,11 +442,11 @@ const FlowBuilder = () => {
           </button>
         </div>
 
-        <div className="flex items-center space-x-3">
+        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
           {/* Botón Importar */}
           <button 
             onClick={() => fileInputRef.current.click()}
-            className="border border-dark-100 hover:border-primary/30 text-gray-400 hover:text-white bg-transparent px-4 py-2 rounded font-bold transition-all text-xs flex items-center gap-1.5"
+            className="flex-1 md:flex-none border border-dark-100 hover:border-primary/30 text-gray-400 hover:text-white bg-transparent px-3 py-2 rounded-lg font-bold transition-all text-xs flex items-center justify-center gap-1.5"
             title="Importar un archivo de flujo .json"
           >
             <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
@@ -423,7 +463,7 @@ const FlowBuilder = () => {
           {/* Botón Exportar */}
           <button 
             onClick={handleExportFlow}
-            className="border border-dark-100 hover:border-primary/30 text-gray-400 hover:text-white bg-transparent px-4 py-2 rounded font-bold transition-all text-xs flex items-center gap-1.5"
+            className="flex-1 md:flex-none border border-dark-100 hover:border-primary/30 text-gray-400 hover:text-white bg-transparent px-3 py-2 rounded-lg font-bold transition-all text-xs flex items-center justify-center gap-1.5"
             title="Exportar flujo actual como .json"
           >
             <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
@@ -433,7 +473,7 @@ const FlowBuilder = () => {
           {/* Botón Librería */}
           <button 
             onClick={() => setIsTemplateModalOpen(true)}
-            className="bg-purple-600/10 hover:bg-purple-600/20 border border-purple-500/30 hover:border-purple-500/50 text-purple-400 hover:text-purple-300 px-4 py-2 rounded font-bold transition-all text-xs flex items-center gap-1.5 shadow-lg shadow-purple-500/5"
+            className="flex-1 md:flex-none bg-purple-600/10 hover:bg-purple-600/20 border border-purple-500/30 hover:border-purple-500/50 text-purple-400 hover:text-purple-300 px-3 py-2 rounded-lg font-bold transition-all text-xs flex items-center justify-center gap-1.5 shadow-lg shadow-purple-500/5"
             title="Librería de plantillas preconfiguradas"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
@@ -442,7 +482,7 @@ const FlowBuilder = () => {
 
           <button 
             onClick={() => navigate('/dashboard')}
-            className="border border-dark-100 hover:border-red-500/30 text-gray-400 hover:text-red-500 bg-transparent hover:bg-red-500/5 px-5 py-2 rounded font-bold transition-all text-xs flex items-center gap-1.5"
+            className="flex-1 md:flex-none border border-dark-100 hover:border-red-500/30 text-gray-400 hover:text-red-500 bg-transparent hover:bg-red-500/5 px-4 py-2 rounded-lg font-bold transition-all text-xs flex items-center justify-center gap-1.5"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
             Cancelar
@@ -451,16 +491,16 @@ const FlowBuilder = () => {
           <button 
             onClick={handleSave}
             disabled={isSaving}
-            className={`bg-primary hover:bg-primary-dark text-white px-6 py-2 rounded font-bold text-xs transition-all shadow-lg shadow-primary/10 ${isSaving ? 'opacity-50' : ''}`}
+            className={`flex-1 md:flex-none bg-primary hover:bg-primary-dark text-white px-5 py-2 rounded-lg font-bold text-xs transition-all shadow-lg shadow-primary/10 ${isSaving ? 'opacity-50' : ''}`}
           >
             Save & Deploy
           </button>
         </div>
       </div>
       
-      <div className="flex flex-grow overflow-hidden">
+      <div className="flex flex-grow overflow-hidden relative">
         <ReactFlowProvider>
-          <div className="flex-grow h-full" ref={reactFlowWrapper}>
+          <div className="flex-grow h-full relative" ref={reactFlowWrapper}>
             <ReactFlow
               nodes={nodes}
               edges={edges}
@@ -480,8 +520,23 @@ const FlowBuilder = () => {
               <Background color="#333" gap={16} />
               <Controls className="bg-dark-200 border-dark-100 fill-white" />
             </ReactFlow>
+
+            {/* Floating Action Button to toggle Nodes Library on mobile */}
+            <button
+              onClick={() => setIsSidebarOpen(true)}
+              className="md:hidden fixed bottom-6 right-6 z-20 bg-primary hover:bg-primary-dark text-white p-4 rounded-full shadow-2xl flex items-center justify-center border border-primary/20 hover:scale-105 active:scale-95 transition-all"
+              title="Abrir Librería de Nodos"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </button>
           </div>
-          <Sidebar />
+          <Sidebar 
+            isOpen={isSidebarOpen} 
+            onClose={() => setIsSidebarOpen(false)} 
+            onAddNode={handleAddNodeClick}
+          />
         </ReactFlowProvider>
       </div>
 
