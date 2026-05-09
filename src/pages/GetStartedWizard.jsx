@@ -18,6 +18,7 @@ const GetStartedWizard = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [betaCode, setBetaCode] = useState('');
   const [verificationSuccess, setVerificationSuccess] = useState(false);
+  const [isBetaRegistrationClosed, setIsBetaRegistrationClosed] = useState(false);
   const [prices, setPrices] = useState({
     standard: { amount: 29, currency: 'USD' },
     vip: { amount: 99, currency: 'USD' }
@@ -36,6 +37,16 @@ const GetStartedWizard = () => {
     if (stepParam === 'authorize') {
       setStep(4);
     }
+
+    const checkBetaStatus = async () => {
+      try {
+        const response = await api.get('/auth/beta-status');
+        setIsBetaRegistrationClosed(response.data.registrationClosed);
+      } catch (err) {
+        console.error("Error al verificar disponibilidad de la beta:", err);
+      }
+    };
+    checkBetaStatus();
 
     const fetchPrices = async () => {
       try {
@@ -154,6 +165,41 @@ const GetStartedWizard = () => {
       features: ['Meta Cloud API Oficial', '100% en la nube (0 celular)', 'Hasta 10 Bots activos', 'Soporte Slack 24/7', 'Monitor multi-agente']
     }
   ];
+
+  if (isBetaRegistrationClosed) {
+    return (
+      <div className="min-h-screen bg-dark-300 text-gray-200 flex flex-col justify-center items-center px-6 relative font-sans overflow-hidden">
+        {/* Círculos de resplandor */}
+        <div className="absolute top-[20%] left-[-10%] w-[400px] h-[400px] rounded-full bg-primary/3 blur-[100px] pointer-events-none"></div>
+        <div className="absolute bottom-[20%] right-[-10%] w-[400px] h-[400px] rounded-full bg-primary/3 blur-[100px] pointer-events-none"></div>
+
+        <div className="max-w-md w-full bg-dark-200 border border-white/5 rounded-3xl p-8 text-center shadow-2xl relative z-10 animate-in fade-in zoom-in-95 duration-500">
+          <div className="w-16 h-16 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-500 text-3xl mx-auto mb-6 shadow-lg shadow-red-500/5 animate-pulse">
+            🔒
+          </div>
+          <span className="text-[10px] font-black tracking-widest text-red-500 font-mono uppercase bg-red-500/10 px-3 py-1 rounded-full border border-red-500/20">
+            Fase Beta Completada
+          </span>
+          <h2 className="text-2xl font-black text-white mt-5 uppercase tracking-tight font-mono">REGISTRO DE PIONEROS CERRADO</h2>
+          <p className="text-xs text-gray-400 font-bold mt-3 leading-relaxed">
+            Actualmente hemos alcanzado el límite máximo de workspaces para esta fase beta privada y el proceso de selección de nuevos pioneros se encuentra cerrado.
+          </p>
+          <p className="text-[11px] text-gray-500 font-bold mt-4 leading-relaxed border-t border-white/5 pt-4">
+            Agradecemos enormemente tu interés en RedWire System. Reabriremos el registro para el lanzamiento público general próximamente.
+          </p>
+          
+          <div className="mt-8">
+            <Link 
+              to="/" 
+              className="inline-block w-full py-4 bg-primary hover:bg-primary-dark text-white text-xs font-black uppercase tracking-widest text-center rounded-xl transition-all shadow-lg shadow-primary/20 hover:scale-105 active:scale-95"
+            >
+              Volver al Inicio 🏠
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const useCases = [
     { id: 'sales', title: 'Ventas y Reservas', desc: 'Captura prospectos, envía ofertas y agenda citas de forma autónoma 24/7.', icon: '💰' },

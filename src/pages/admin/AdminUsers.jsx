@@ -26,6 +26,7 @@ const AdminUsers = () => {
   const [manualEmail, setManualEmail] = useState('');
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
   const [copiedCode, setCopiedCode] = useState('');
+  const [betaClosed, setBetaClosed] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -46,16 +47,35 @@ const AdminUsers = () => {
   const fetchBetaData = async () => {
     setBetaLoading(true);
     try {
-      const [codesRes, pendingRes] = await Promise.all([
+      const [codesRes, pendingRes, settingsRes] = await Promise.all([
         api.get('/admin/beta-codes'),
-        api.get('/admin/pending-users')
+        api.get('/admin/pending-users'),
+        api.get('/admin/beta-settings')
       ]);
       setBetaCodes(codesRes.data || []);
       setPendingUsers(pendingRes.data || []);
+      setBetaClosed(settingsRes.data?.registrationClosed || false);
     } catch (error) {
       console.error('Error fetching beta data:', error);
     } finally {
       setBetaLoading(false);
+    }
+  };
+
+  const handleToggleBetaRegistration = async () => {
+    const nextState = !betaClosed;
+    const confirmMsg = nextState 
+      ? '¿Estás seguro de que deseas CERRAR el registro de la fase beta? Ningún cliente nuevo podrá crear una cuenta.' 
+      : '¿Estás seguro de que deseas ABRIR el registro de la fase beta? Se reanudará la incorporación de nuevos clientes.';
+    
+    if (!confirm(confirmMsg)) return;
+
+    try {
+      const response = await api.post('/admin/beta-settings', { registrationClosed: nextState });
+      setBetaClosed(response.data.registrationClosed);
+    } catch (error) {
+      console.error('Error toggling beta registration status:', error);
+      alert('Error en el servidor al cambiar el estado de la beta.');
     }
   };
 
@@ -349,6 +369,36 @@ const AdminUsers = () => {
       {activeTab === 'beta' && (
         <div className="space-y-8 animate-in fade-in duration-300">
           
+          {/* CONTROL DEL ESTADO GLOBAL DE REGISTRO BETA */}
+          <div className="p-6 bg-dark-200 border border-white/5 rounded-3xl relative overflow-hidden shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className={`absolute top-0 left-0 w-1.5 h-full ${betaClosed ? 'bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.5)]' : 'bg-green-500 shadow-[0_0_15px_rgba(34,197,94,0.5)]'}`}></div>
+            <div className="space-y-1.5 text-left">
+              <div className="flex items-center gap-2">
+                <span className={`w-2.5 h-2.5 rounded-full ${betaClosed ? 'bg-red-500 animate-pulse' : 'bg-green-500 animate-pulse'}`}></span>
+                <span className={`text-[10px] font-black font-mono uppercase tracking-widest ${betaClosed ? 'text-red-500' : 'text-green-500'}`}>
+                  {betaClosed ? 'REGISTRO CERRADO 🔒' : 'REGISTRO ABIERTO 🟢'}
+                </span>
+              </div>
+              <h3 className="text-lg font-black text-white font-mono uppercase tracking-tight">Control de Registro de Fase Beta</h3>
+              <p className="text-xs text-gray-400 font-semibold max-w-2xl leading-relaxed">
+                {betaClosed 
+                  ? 'El acceso a nuevos clientes está cerrado temporalmente. Nadie podrá registrarse a través del formulario de Onboarding hasta que decidas reabrirlo.' 
+                  : 'El registro para el Programa de Pioneros está activo y abierto. Los nuevos clientes pueden registrarse, configurar su plan y solicitar su código.'}
+              </p>
+            </div>
+            
+            <button
+              onClick={handleToggleBetaRegistration}
+              className={`px-6 py-3.5 rounded-xl font-mono font-black uppercase text-xs tracking-wider transition-all hover:scale-105 active:scale-95 shrink-0 shadow-lg ${
+                betaClosed 
+                  ? 'bg-green-500/10 hover:bg-green-500 text-green-400 hover:text-dark-300 border border-green-500/20 shadow-green-500/5' 
+                  : 'bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/20 shadow-red-500/5'
+              }`}
+            >
+              {betaClosed ? '🔓 Abrir Registros' : '🔒 Cerrar Registros'}
+            </button>
+          </div>
+
           {/* PANEL DE NOTIFICACIONES: SOLICITUDES PENDIENTES */}
           <div>
             <h2 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-4 font-mono">🚨 Solicitudes y Clientes en Espera ({pendingUsers.length})</h2>
