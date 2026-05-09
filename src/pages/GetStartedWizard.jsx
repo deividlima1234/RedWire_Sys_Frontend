@@ -10,7 +10,7 @@ const GetStartedWizard = () => {
   const user = useAuthStore((state) => state.user);
 
   const [step, setStep] = useState(1);
-  const [selectedPlan, setSelectedPlan] = useState('free');
+  const [selectedPlan, setSelectedPlan] = useState('standard');
   const [useCase, setUseCase] = useState('sales');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -26,8 +26,10 @@ const GetStartedWizard = () => {
   // Cargar el plan de la URL si viene configurado y consultar precios reales
   useEffect(() => {
     const planParam = searchParams.get('plan');
-    if (planParam && ['free', 'standard', 'vip'].includes(planParam.toLowerCase())) {
+    if (planParam && ['standard'].includes(planParam.toLowerCase())) {
       setSelectedPlan(planParam.toLowerCase());
+    } else {
+      setSelectedPlan('standard');
     }
 
     const stepParam = searchParams.get('step');
@@ -210,18 +212,34 @@ const GetStartedWizard = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
               {plans.map((p) => {
                 const isSelected = selectedPlan === p.id;
+                const isDisabled = p.id === 'free' || p.id === 'vip';
                 return (
                   <div 
                     key={p.id}
-                    onClick={() => setSelectedPlan(p.id)}
-                    className={`p-6 border-2 rounded-2xl cursor-pointer transition-all hover:scale-105 ${
-                      isSelected 
-                        ? p.id === 'vip' 
-                          ? 'border-amber-500 bg-amber-500/5 shadow-lg shadow-amber-500/5' 
-                          : 'border-primary bg-primary/5 shadow-lg shadow-primary/5'
-                        : 'border-white/5 bg-dark-200 hover:border-white/20'
+                    onClick={() => !isDisabled && setSelectedPlan(p.id)}
+                    className={`p-6 border-2 rounded-2xl cursor-pointer transition-all relative overflow-hidden ${
+                      isDisabled
+                        ? 'border-white/5 bg-dark-200/40 opacity-40 cursor-not-allowed hover:scale-100'
+                        : isSelected 
+                          ? p.id === 'vip' 
+                            ? 'border-amber-500 bg-amber-500/5 shadow-lg shadow-amber-500/5' 
+                            : 'border-primary bg-primary/5 shadow-lg shadow-primary/5'
+                          : 'border-white/5 bg-dark-200 hover:border-white/20 hover:scale-105'
                     }`}
                   >
+                    {isDisabled && (
+                      <div className="absolute inset-0 bg-dark-300/60 backdrop-blur-xs flex flex-col items-center justify-center text-center p-4 z-10">
+                        <span className="text-[8px] font-black tracking-widest text-white font-mono uppercase bg-red-500/80 px-2 py-0.5 rounded border border-red-500/20 shadow-md">
+                          {p.id === 'free' ? 'Inhabilitado' : 'En Desarrollo'}
+                        </span>
+                        <p className="text-[9px] text-gray-300 font-bold mt-1.5 leading-tight max-w-[130px]">
+                          {p.id === 'free' 
+                            ? 'Foco exclusivo en Plan Standard' 
+                            : 'Canal Meta API próximamente'}
+                        </p>
+                      </div>
+                    )}
+
                     <div className="flex justify-between items-center mb-3">
                       <span className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-lg ${
                         isSelected 

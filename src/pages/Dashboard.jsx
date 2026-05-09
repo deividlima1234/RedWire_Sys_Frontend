@@ -171,8 +171,37 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="text-white relative">
-      <div className="flex justify-between items-center mb-8">
+    <div className="text-white relative space-y-6">
+      {/* Listón Superior - Fase Beta Cerrada */}
+      <div className="p-5 bg-primary/5 border border-primary/25 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4 relative overflow-hidden shadow-lg shadow-primary/5 animate-in fade-in slide-in-from-top-4 duration-500">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl"></div>
+        <div className="flex items-center gap-3.5 relative z-10 text-left">
+          <span className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/30 flex items-center justify-center text-primary text-lg animate-pulse">
+            🚀
+          </span>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-[9px] font-black tracking-widest text-primary font-mono uppercase bg-primary/10 px-2.5 py-0.5 rounded border border-primary/25">
+                FASE BETA CERRADA
+              </span>
+              <span className="text-[10px] text-gray-400 font-mono font-bold uppercase tracking-wider">• PROGRAMA DE PIONEROS</span>
+            </div>
+            <p className="text-xs text-gray-300 font-bold mt-1.5 leading-relaxed">
+              ¡Bienvenido al entorno exclusivo de pioneros de RedWire System! Actualmente estás operando en la <strong className="text-white">Fase Beta con el Plan Standard Ilimitado 100% Gratuito</strong>. Tu retroalimentación de uso en producción real es clave para nosotros.
+            </p>
+          </div>
+        </div>
+        <a
+          href="https://wa.me/51983032706?text=Hola%20EddamCore%2C%20tengo%20un%20comentario%2Ffeedback%20sobre%20mi%20experiencia%20en%20la%20beta%20de%20RedWire%3A%20"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="px-4 py-2.5 bg-primary/10 hover:bg-primary text-primary hover:text-dark-300 font-mono font-black uppercase text-[10px] tracking-wider rounded-xl border border-primary/20 transition-all hover:scale-105 active:scale-95 shrink-0 relative z-10 shadow-md shadow-primary/5"
+        >
+          Enviar Feedback 💬
+        </a>
+      </div>
+
+      <div className="flex justify-between items-center">
         <h2 className="text-4xl font-black font-mono tracking-tighter italic">MY <span className="text-primary">BOTS</span></h2>
       </div>
 
