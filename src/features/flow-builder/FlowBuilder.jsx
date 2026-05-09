@@ -241,6 +241,54 @@ const FlowBuilder = () => {
     return true;
   };
 
+  const sanitizeFlowData = (data) => {
+    if (!data || typeof data !== 'object') return data;
+    if (!data.flowData) return data;
+    
+    const nodes = Array.isArray(data.flowData.nodes) ? data.flowData.nodes : [];
+    const edges = Array.isArray(data.flowData.edges) ? data.flowData.edges : [];
+
+    const sanitizedNodes = nodes
+      .filter(node => node && typeof node === 'object')
+      .map((node, index) => {
+        const safeNode = { ...node };
+        if (!safeNode.id) {
+          safeNode.id = `auto_node_${index}_${Math.random().toString(36).substr(2, 5)}`;
+        }
+        // Ensure valid position
+        if (!safeNode.position || typeof safeNode.position !== 'object') {
+          safeNode.position = { x: 250, y: 100 + (index * 160) };
+        } else {
+          const x = typeof safeNode.position.x === 'number' ? safeNode.position.x : 250;
+          const y = typeof safeNode.position.y === 'number' ? safeNode.position.y : 100 + (index * 160);
+          safeNode.position = { x, y };
+        }
+        // Ensure data is an object
+        if (!safeNode.data || typeof safeNode.data !== 'object') {
+          safeNode.data = { label: safeNode.type || 'Nodo' };
+        }
+        return safeNode;
+      });
+
+    const sanitizedEdges = edges
+      .filter(edge => edge && typeof edge === 'object' && edge.source && edge.target)
+      .map((edge, index) => {
+        const safeEdge = { ...edge };
+        if (!safeEdge.id) {
+          safeEdge.id = `e_${safeEdge.source}_to_${safeEdge.target}_${index}`;
+        }
+        return safeEdge;
+      });
+
+    return {
+      ...data,
+      flowData: {
+        nodes: sanitizedNodes,
+        edges: sanitizedEdges
+      }
+    };
+  };
+
   const validateFlowJson = (jsonData) => {
     if (!jsonData || typeof jsonData !== 'object') {
       return {
@@ -345,10 +393,13 @@ const FlowBuilder = () => {
           return;
         }
 
+        // Saneamiento de datos para evitar caídas de coordenadas en React Flow
+        const sanitizedData = sanitizeFlowData(data);
+
         // Load flow
         takeSnapshot();
-        setNodes(data.flowData.nodes);
-        setEdges(data.flowData.edges || []);
+        setNodes(sanitizedData.flowData.nodes);
+        setEdges(sanitizedData.flowData.edges || []);
         
         // Force file input reset
         event.target.value = null;
@@ -397,10 +448,13 @@ const FlowBuilder = () => {
         return;
       }
 
+      // Saneamiento de datos para evitar caídas de coordenadas en React Flow
+      const sanitizedData = sanitizeFlowData(data);
+
       // Load flow
       takeSnapshot();
-      setNodes(data.flowData.nodes);
-      setEdges(data.flowData.edges || []);
+      setNodes(sanitizedData.flowData.nodes);
+      setEdges(sanitizedData.flowData.edges || []);
       
       setPasteJsonText('');
       setIsPasteJsonOpen(false);
