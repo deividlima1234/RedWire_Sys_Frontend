@@ -57,6 +57,8 @@ const FlowBuilder = () => {
   const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
   const [upgradeAlert, setUpgradeAlert] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isPasteJsonOpen, setIsPasteJsonOpen] = useState(false);
+  const [pasteJsonText, setPasteJsonText] = useState('');
 
   // Historial para deshacer / rehacer
   const [history, setHistory] = useState({
@@ -315,6 +317,47 @@ const FlowBuilder = () => {
     reader.readAsText(file);
   };
 
+  const handleImportJsonText = () => {
+    try {
+      if (!pasteJsonText.trim()) {
+        alert('Por favor, pega un código JSON válido.');
+        return;
+      }
+      const data = JSON.parse(pasteJsonText);
+      
+      // Validation check
+      if (!data.flowData || !data.flowData.nodes) {
+        alert('Error: El formato del JSON no es válido de RedWire System.');
+        return;
+      }
+
+      // Tier validation
+      const requiredTier = data.tierRequirement || 'FREE';
+      const userTier = user?.subscriptionTier || 'FREE';
+
+      // Check compatibility
+      const isCompatible = checkTierCompatibility(userTier, requiredTier);
+      if (!isCompatible) {
+        setUpgradeAlert({ requiredTier, actionType: 'importar texto json' });
+        return;
+      }
+
+      // Load flow
+      takeSnapshot();
+      setNodes(data.flowData.nodes);
+      setEdges(data.flowData.edges || []);
+      
+      setPasteJsonText('');
+      setIsPasteJsonOpen(false);
+      alert('¡Código JSON importado con éxito! 🎉 Guarda los cambios para desplegarlos.');
+    } catch (err) {
+      console.error('Failed to parse import JSON text', err);
+      alert('Error: No se pudo descifrar el código JSON. Verifica que esté bien escrito.');
+    }
+  };
+
+
+
   const handleLoadTemplate = (template) => {
     const userTier = user?.subscriptionTier || 'FREE';
     const isCompatible = checkTierCompatibility(userTier, template.tierRequirement);
@@ -467,6 +510,16 @@ const FlowBuilder = () => {
             accept=".json" 
             style={{ display: 'none' }} 
           />
+
+          {/* Botón Pegar JSON */}
+          <button 
+            onClick={() => setIsPasteJsonOpen(true)}
+            className="flex-1 md:flex-none border border-dark-100 hover:border-primary/30 text-gray-400 hover:text-white bg-transparent px-3 py-2 rounded-lg font-bold transition-all text-xs flex items-center justify-center gap-1.5"
+            title="Pegar código JSON generado por una IA"
+          >
+            <svg className="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>
+            Pegar JSON
+          </button>
 
           {/* Botón Exportar */}
           <button 
@@ -663,6 +716,77 @@ const FlowBuilder = () => {
                 }`}
               >
                 💎 Mejorar Plan
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Modal para Pegar Código JSON de IA */}
+      {isPasteJsonOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-dark-300/80 backdrop-blur-sm animate-fade-in" onClick={() => setIsPasteJsonOpen(false)}></div>
+          
+          <div className="bg-dark-200 border border-dark-100 rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl relative z-10 animate-in fade-in zoom-in duration-300">
+            <div className="p-6 border-b border-dark-100 flex justify-between items-center bg-dark-100/30">
+              <div>
+                <h2 className="text-xl font-black text-white tracking-tight flex items-center gap-2">
+                  IMPORTAR DESDE CÓDIGO JSON 🤖
+                </h2>
+                <p className="text-gray-400 text-xs mt-1 font-medium">Pega el código JSON generado por tu IA para cargar el flujo instantáneamente.</p>
+              </div>
+              <button onClick={() => setIsPasteJsonOpen(false)} className="text-gray-500 hover:text-white transition-colors">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <div className="relative">
+                <textarea
+                  value={pasteJsonText}
+                  onChange={(e) => setPasteJsonText(e.target.value)}
+                  placeholder={`{\n  "appName": "RedWire System",\n  "schemaVersion": "1.0.0",\n  "tierRequirement": "FREE",\n  "flowData": {\n    "nodes": [...],\n    "edges": [...]\n  }\n}`}
+                  className="w-full h-80 bg-dark-300 border border-dark-100 rounded-2xl p-4 text-xs font-mono text-gray-300 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary custom-scrollbar resize-none"
+                ></textarea>
+                <button
+                  onClick={async () => {
+                    try {
+                      const text = await navigator.clipboard.readText();
+                      setPasteJsonText(text);
+                    } catch (err) {
+                      alert('No se pudo acceder al portapapeles automáticamente. Por favor pega usando Ctrl+V.');
+                    }
+                  }}
+                  className="absolute bottom-4 right-4 bg-dark-100 hover:bg-dark-100/80 text-gray-300 hover:text-white px-3 py-1.5 rounded-xl text-[10px] font-black tracking-wider border border-dark-100 transition-all flex items-center gap-1 uppercase"
+                >
+                  📋 Pegar Portapapeles
+                </button>
+              </div>
+
+              <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4">
+                <h4 className="text-xs font-black text-primary tracking-wide uppercase mb-1">💡 ¿Cómo pedirle el flujo a tu IA?</h4>
+                <p className="text-gray-400 text-[11px] leading-relaxed font-medium">
+                  Copia las especificaciones de estructura de RedWire de nuestra documentación y dile: 
+                  <span className="text-white italic block mt-1 bg-dark-300/50 p-2 rounded border border-dark-100/30">
+                    "Genera un flujo para mi negocio en formato JSON compatible con RedWire System, usando los nodos Trigger, Message e Interactive..."
+                  </span>
+                </p>
+              </div>
+            </div>
+
+            <div className="p-4 bg-dark-100/20 border-t border-dark-100 flex gap-3">
+              <button
+                onClick={() => setIsPasteJsonOpen(false)}
+                className="flex-1 py-3 bg-dark-100 hover:bg-dark-100/80 text-gray-400 hover:text-white font-bold rounded-xl text-xs transition-colors uppercase"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleImportJsonText}
+                className="flex-1 py-3 bg-primary hover:bg-primary-dark text-white font-black rounded-xl text-xs transition-all shadow-lg shadow-primary/10 uppercase"
+              >
+                📥 Importar Flujo al Lienzo
               </button>
             </div>
           </div>
