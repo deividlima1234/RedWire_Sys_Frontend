@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import useAuthStore from '../store/useAuthStore';
 import PricingModal from './PricingModal';
 import api from '../config/axios';
@@ -7,6 +8,7 @@ const SubscriptionStatus = ({ isCollapsed }) => {
   const { user, refreshUser } = useAuthStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loadingPortal, setLoadingPortal] = useState(false);
+  const [billingError, setBillingError] = useState(null);
   
   React.useEffect(() => {
     refreshUser();
@@ -58,6 +60,7 @@ const SubscriptionStatus = ({ isCollapsed }) => {
     }
     
     setLoadingPortal(true);
+    setBillingError(null);
     try {
       const response = await api.post('/subscription/portal-session');
       if (response.data && response.data.url) {
@@ -65,7 +68,8 @@ const SubscriptionStatus = ({ isCollapsed }) => {
       }
     } catch (error) {
       console.error("Error al abrir portal de facturación", error);
-      alert("Error al intentar abrir el portal de facturación de Stripe.");
+      const msg = error.response?.data?.message || "No pudimos conectar con el portal de facturación de Stripe. Inténtalo de nuevo más tarde.";
+      setBillingError(msg);
     } finally {
       setLoadingPortal(false);
     }
@@ -155,6 +159,58 @@ const SubscriptionStatus = ({ isCollapsed }) => {
       </button>
 
       <PricingModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+
+      {billingError && createPortal(
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-dark-300/90 backdrop-blur-md animate-fade-in" onClick={() => setBillingError(null)}></div>
+          
+          <div className="bg-dark-200 border border-yellow-500/30 rounded-3xl w-full max-w-md overflow-hidden shadow-2xl relative z-10 animate-in fade-in zoom-in duration-300">
+            <div className="p-6 border-b border-dark-100 text-center bg-yellow-500/5 relative">
+              <div className="w-16 h-16 rounded-full bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center mx-auto mb-4 animate-bounce">
+                <span className="text-2xl">💳</span>
+              </div>
+              <h2 className="text-xl font-black text-white tracking-tight uppercase">Portal de Stripe</h2>
+              <p className="text-yellow-500 text-xs mt-1 font-bold uppercase tracking-wider">Facturación No Sincronizada</p>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <div className="space-y-1 text-center">
+                <p className="text-sm text-gray-300 leading-relaxed font-semibold">
+                  No se pudo abrir el portal de facturación debido a la siguiente restricción:
+                </p>
+                <div className="bg-dark-300 p-4 rounded-2xl border border-dark-100 font-mono text-xs text-red-400 break-words leading-relaxed text-center mt-2">
+                  {billingError}
+                </div>
+              </div>
+
+              <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4 text-xs text-gray-400 leading-relaxed">
+                <h4 className="font-bold text-primary mb-1 uppercase text-[10px]">💡 ¿Por qué ocurre esto?</h4>
+                Si tu cuenta de RedWire fue actualizada manualmente (cuenta de prueba/cortesía) o estás usando una simulación local, no tienes un cliente real registrado en Stripe.
+                <p className="mt-2 font-bold text-white">¡No te preocupes! Puedes seguir usando tu plan {tier} normalmente sin asociar ninguna tarjeta.</p>
+              </div>
+            </div>
+
+            <div className="p-6 bg-dark-100/10 border-t border-dark-100 flex gap-3">
+              <button
+                onClick={() => setBillingError(null)}
+                className="flex-1 py-3 bg-dark-100 hover:bg-dark-100/80 text-gray-400 hover:text-white font-bold rounded-xl text-sm transition-colors uppercase"
+              >
+                Cerrar
+              </button>
+              <button
+                onClick={() => {
+                  setBillingError(null);
+                  setIsModalOpen(true);
+                }}
+                className="flex-1 py-3 bg-gradient-to-r from-primary to-blue-600 text-white font-black rounded-xl text-sm transition-all shadow-lg uppercase"
+              >
+                Ver Planes 💎
+              </button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 };
