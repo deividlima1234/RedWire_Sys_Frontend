@@ -141,7 +141,7 @@ const GetStartedWizard = () => {
       id: 'standard',
       name: 'Plan Standard',
       accent: 'border-primary/40 text-primary bg-primary/5 shadow-md shadow-primary/5',
-      price: `$${prices.standard.amount} ${prices.standard.currency}`,
+      price: '$0 USD (Beta Pioneros)',
       features: ['Mensajes Ilimitados', 'Hasta 3 Bots activos', 'Constructor multimedia', 'Monitor en vivo', 'Solo Baileys QR']
     },
     {
@@ -233,7 +233,9 @@ const GetStartedWizard = () => {
                       {isSelected && <span className={p.id === 'vip' ? 'text-amber-500' : 'text-primary'}>✓</span>}
                     </div>
                     <div className="text-xl font-black text-white font-mono">{p.price}</div>
-                    <div className="text-[10px] text-gray-500 font-mono font-bold uppercase mt-1">mensual</div>
+                    <div className="text-[10px] text-gray-500 font-mono font-bold uppercase mt-1">
+                      {p.id === 'standard' ? 'Gratis de por vida (Pionero)' : 'mensual'}
+                    </div>
                     
                     <ul className="mt-4 text-[11px] text-gray-400 space-y-1.5 font-bold border-t border-white/5 pt-3">
                       {p.features.map((f, i) => (
