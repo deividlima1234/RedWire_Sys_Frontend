@@ -18,9 +18,9 @@ const Login = () => {
 
     try {
       const response = await api.post('/auth/login', { email, password });
-      const { token, id, email: userEmail, role } = response.data;
+      const { token, id, email: userEmail, role, betaAuthorized, subscriptionTier } = response.data;
       
-      setAuth(token, { id, email: userEmail, role });
+      setAuth(token, { id, email: userEmail, role, betaAuthorized, subscriptionTier });
       navigate('/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Invalid credentials or server error');
