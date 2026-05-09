@@ -56,7 +56,8 @@ const Dashboard = () => {
 
     fetchBots();
     
-    const newSocket = io('http://localhost:3000', { autoConnect: false });
+    const workerUrl = import.meta.env.VITE_WORKER_URL || 'http://localhost:3000';
+    const newSocket = io(workerUrl, { autoConnect: false });
     setSocket(newSocket);
     
     return () => newSocket.close();
@@ -126,7 +127,8 @@ const Dashboard = () => {
   const handleLogoutBot = async (botId) => {
     if (!confirm('¿Estás seguro de que quieres desvincular esta cuenta de WhatsApp?')) return;
     try {
-      await fetch(`http://localhost:3000/worker/bot/${botId}/logout`, { method: 'POST' });
+      const workerUrl = import.meta.env.VITE_WORKER_URL || 'http://localhost:3000';
+      await fetch(`${workerUrl}/worker/bot/${botId}/logout`, { method: 'POST' });
       fetchBots();
     } catch (error) {
       console.error("Error logging out bot", error);

@@ -238,7 +238,8 @@ const BotDiagnosticsModal = ({ isOpen, onClose, bot, onRefresh }) => {
     ]);
 
     try {
-      const response = await fetch(`http://localhost:3000/worker/bot/${bot.id}/start`, {
+      const workerUrl = import.meta.env.VITE_WORKER_URL || 'http://localhost:3000';
+      const response = await fetch(`${workerUrl}/worker/bot/${bot.id}/start`, {
         method: 'POST'
       });
       const data = await response.json();
