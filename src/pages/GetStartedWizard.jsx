@@ -49,9 +49,14 @@ const GetStartedWizard = () => {
       const loginResponse = await api.post('/auth/login', { email, password });
       const { token, id, email: userEmail, role } = loginResponse.data;
       
-      // Guardar sesión e ir directo al panel
+      // Guardar sesión e ir directo al panel o pantalla de pago
       setAuth(token, { id, email: userEmail, role });
-      navigate('/dashboard');
+      
+      if (selectedPlan === 'free') {
+        navigate('/dashboard');
+      } else {
+        setStep(4);
+      }
     } catch (err) {
       console.error("Error en onboarding:", err);
       setError(err.response?.data?.message || err.response?.data || 'Error en el servidor. Revisa los datos.');
@@ -120,12 +125,12 @@ const GetStartedWizard = () => {
           <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-gray-500 mb-4 font-mono">
             <span className={step >= 1 ? 'text-primary' : ''}>1. Configura tu Plan</span>
             <span className={step >= 2 ? 'text-primary' : ''}>2. Selecciona Enfoque</span>
-            <span className={step >= 3 ? 'text-primary' : ''}>3. Crea tu Cuenta</span>
+            <span className={step >= 3 ? 'text-primary' : ''}>{step === 4 ? '3. Completar Pago' : '3. Crea tu Cuenta'}</span>
           </div>
           <div className="h-1 bg-dark-100 rounded-full relative overflow-hidden">
             <div 
               className="absolute left-0 top-0 h-full bg-primary transition-all duration-300 rounded-full"
-              style={{ width: `${(step / 3) * 100}%` }}
+              style={{ width: `${Math.min((step / 3) * 100, 100)}%` }}
             ></div>
           </div>
         </div>
@@ -314,6 +319,120 @@ const GetStartedWizard = () => {
                 </button>
               </div>
             </form>
+          </div>
+        )}
+
+        {/* CONTENIDO DE PASO 4: MURO DE PAGO SEGURO STRIPE */}
+        {step === 4 && (
+          <div className="space-y-8 animate-in fade-in duration-300">
+            <div className="space-y-2 text-center">
+              <span className="text-[10px] font-black tracking-widest uppercase text-primary font-mono bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
+                🚀 ¡Registro Completo!
+              </span>
+              <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight uppercase font-mono mt-2">ACTIVA TU ENTORNO PREMIUM</h2>
+              <p className="text-xs text-gray-400 font-semibold max-w-md mx-auto">
+                Para activar tu piloto automático sin límites de mensajes y bots, completa tu suscripción segura.
+              </p>
+            </div>
+
+            <div className="max-w-md mx-auto bg-dark-200 border border-white/5 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
+              {/* Resplandor decorativo */}
+              <div className="absolute -top-12 -right-12 w-32 h-32 bg-primary/5 rounded-full blur-3xl"></div>
+
+              <div className="flex justify-between items-center mb-6">
+                <div>
+                  <span className="text-[9px] text-gray-500 font-mono uppercase font-black tracking-wider">Plan Elegido</span>
+                  <h3 className="text-xl font-black text-white uppercase font-mono">
+                    {selectedPlan === 'standard' ? '⚡ Plan Standard' : '💎 Plan VIP'}
+                  </h3>
+                </div>
+                <div className="text-right">
+                  <span className="text-[9px] text-gray-500 font-mono uppercase font-black tracking-wider">Precio Mensual</span>
+                  <div className="text-2xl font-black text-primary font-mono">
+                    {selectedPlan === 'standard' ? '$29 USD' : '$99 USD'}
+                  </div>
+                </div>
+              </div>
+
+              {/* Beneficios clave */}
+              <ul className="space-y-3.5 mb-8 border-t border-b border-white/5 py-6">
+                {selectedPlan === 'standard' ? (
+                  <>
+                    <li className="flex items-center text-xs text-gray-300 font-bold">
+                      <span className="mr-3 text-primary">✔</span> Mensajes ilimitados hacia tus clientes
+                    </li>
+                    <li className="flex items-center text-xs text-gray-300 font-bold">
+                      <span className="mr-3 text-primary">✔</span> Conecta hasta 3 bots de WhatsApp activos
+                    </li>
+                    <li className="flex items-center text-xs text-gray-300 font-bold">
+                      <span className="mr-3 text-primary">✔</span> Consola de diagnóstico y monitor en vivo
+                    </li>
+                  </>
+                ) : (
+                  <>
+                    <li className="flex items-center text-xs text-amber-500 font-bold">
+                      <span className="mr-3 text-amber-500">✔</span> API Oficial de Meta Cloud (Cero bloqueos)
+                    </li>
+                    <li className="flex items-center text-xs text-gray-300 font-bold">
+                      <span className="mr-3 text-amber-500">✔</span> Conecta hasta 10 bots de WhatsApp activos
+                    </li>
+                    <li className="flex items-center text-xs text-gray-300 font-bold">
+                      <span className="mr-3 text-amber-500">✔</span> Soporte prioritario Slack 24/7 de ingenieros
+                    </li>
+                  </>
+                )}
+              </ul>
+
+              {error && (
+                <div className="text-xs text-red-500 bg-red-500/10 p-3 rounded-xl border border-red-500/20 text-center font-bold font-mono mb-4">
+                  {error}
+                </div>
+              )}
+
+              <div className="space-y-4">
+                <button
+                  onClick={async () => {
+                    setIsLoading(true);
+                    setError('');
+                    try {
+                      const response = await api.post('/subscription/checkout-session', { tier: selectedPlan });
+                      if (response.data && response.data.url) {
+                        window.location.href = response.data.url;
+                      } else {
+                        throw new Error("No se recibió la URL de Stripe.");
+                      }
+                    } catch (err) {
+                      console.error("Error al iniciar checkout:", err);
+                      setError(err.response?.data?.message || err.message || "Error al conectar con Stripe. Intenta de nuevo.");
+                      setIsLoading(false);
+                    }
+                  }}
+                  disabled={isLoading}
+                  className="w-full py-4 bg-primary hover:bg-primary-dark text-dark-300 font-black uppercase tracking-widest text-xs rounded-xl transition-all shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 animate-pulse"
+                >
+                  {isLoading ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-dark-300 border-t-transparent rounded-full animate-spin"></div>
+                      <span>Cargando Pago Seguro...</span>
+                    </>
+                  ) : (
+                    <span>Proceder al Pago Seguro 💳</span>
+                  )}
+                </button>
+
+                <button
+                  onClick={() => navigate('/dashboard')}
+                  disabled={isLoading}
+                  className="w-full py-3 bg-transparent border border-white/10 hover:border-white/20 text-gray-400 hover:text-white font-mono uppercase tracking-wider text-[10px] rounded-xl transition-all font-bold"
+                >
+                  Continuar con el Plan FREE por ahora
+                </button>
+              </div>
+            </div>
+
+            <p className="text-center text-[9px] text-gray-600 font-mono font-bold uppercase tracking-wider">
+              🔒 Transacciones encriptadas de extremo a extremo procesadas por Stripe
+            </p>
           </div>
         )}
 

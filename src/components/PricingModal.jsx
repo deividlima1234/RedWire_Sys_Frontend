@@ -11,12 +11,15 @@ const PricingModal = ({ isOpen, onClose }) => {
   const handleUpgrade = async (newTier) => {
     setLoading(true);
     try {
-      const response = await api.post('/subscription/upgrade', { tier: newTier });
-      await refreshUser();
-      onClose();
+      const response = await api.post('/subscription/checkout-session', { tier: newTier });
+      if (response.data && response.data.url) {
+        window.location.href = response.data.url;
+      } else {
+        throw new Error("No se pudo obtener la URL de Stripe.");
+      }
     } catch (error) {
-      console.error('Error upgrading plan', error);
-      alert('Error al actualizar el plan');
+      console.error('Error upgrading plan via Stripe', error);
+      alert('Error al iniciar el proceso de pago con Stripe.');
     } finally {
       setLoading(false);
     }

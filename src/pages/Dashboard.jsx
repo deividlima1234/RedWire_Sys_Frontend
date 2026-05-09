@@ -9,7 +9,7 @@ import DeleteConfirmModal from '../components/DeleteConfirmModal';
 import BotDiagnosticsModal from '../components/BotDiagnosticsModal';
 
 const Dashboard = () => {
-  const { user } = useAuthStore();
+  const { user, refreshUser } = useAuthStore();
   const [bots, setBots] = useState([]);
   const [loading, setLoading] = useState(true);
   const [newBotPhone, setNewBotPhone] = useState('');
@@ -34,6 +34,26 @@ const Dashboard = () => {
   const isVip = user?.subscriptionTier === 'VIP' || user?.subscriptionTier === 'VIP_TIER';
 
   useEffect(() => {
+    // Procesar actualización simulada en Sandbox si viene el parámetro en URL
+    const searchParams = new URLSearchParams(window.location.search);
+    const mockUpgradeTier = searchParams.get('mock_upgrade_tier');
+    
+    if (mockUpgradeTier) {
+      const applyMockUpgrade = async () => {
+        try {
+          console.log(" [MOCK] Aplicando actualización de plan simulada a:", mockUpgradeTier);
+          await api.post('/subscription/upgrade', { tier: mockUpgradeTier });
+          await refreshUser();
+          alert(`🎉 [Sandbox Mode] Pago procesado con éxito. Tu plan se ha actualizado a ${mockUpgradeTier.toUpperCase()}`);
+          // Limpiar la URL para que no se quede con los parámetros
+          window.history.replaceState({}, document.title, window.location.pathname);
+        } catch (error) {
+          console.error("Error al aplicar actualización simulada", error);
+        }
+      };
+      applyMockUpgrade();
+    }
+
     fetchBots();
     
     const newSocket = io('http://localhost:3000', { autoConnect: false });

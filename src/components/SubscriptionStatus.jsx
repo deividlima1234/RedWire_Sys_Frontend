@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import useAuthStore from '../store/useAuthStore';
 import PricingModal from './PricingModal';
+import api from '../config/axios';
 
 const SubscriptionStatus = ({ isCollapsed }) => {
   const { user, refreshUser } = useAuthStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [loadingPortal, setLoadingPortal] = useState(false);
   
   React.useEffect(() => {
     refreshUser();
@@ -48,6 +50,26 @@ const SubscriptionStatus = ({ isCollapsed }) => {
       </div>
     );
   }
+
+  const handleManagePlan = async () => {
+    if (tier === 'FREE') {
+      setIsModalOpen(true);
+      return;
+    }
+    
+    setLoadingPortal(true);
+    try {
+      const response = await api.post('/subscription/portal-session');
+      if (response.data && response.data.url) {
+        window.location.href = response.data.url;
+      }
+    } catch (error) {
+      console.error("Error al abrir portal de facturación", error);
+      alert("Error al intentar abrir el portal de facturación de Stripe.");
+    } finally {
+      setLoadingPortal(false);
+    }
+  };
 
   return (
     <div className="bg-dark-300 p-4 rounded-lg border border-dark-100 shadow-inner">
@@ -122,15 +144,14 @@ const SubscriptionStatus = ({ isCollapsed }) => {
       )}
 
       <button 
-        onClick={() => tier !== 'VIP' && setIsModalOpen(true)}
+        onClick={handleManagePlan}
+        disabled={loadingPortal}
         className={`w-full mt-4 py-2.5 text-[10px] font-black rounded-lg transition-all tracking-widest ${
         tier === 'FREE' 
         ? 'bg-gradient-to-r from-primary to-blue-600 text-white hover:shadow-lg hover:shadow-primary/30 active:scale-95 uppercase' 
-        : tier === 'STANDARD'
-        ? 'bg-gradient-to-r from-yellow-500 to-orange-600 text-white hover:shadow-lg hover:shadow-yellow-500/30 active:scale-95 uppercase'
-        : 'bg-dark-100 text-gray-500 cursor-not-allowed border border-white/5 uppercase'
+        : 'bg-gradient-to-r from-yellow-500 to-orange-600 text-white hover:shadow-lg hover:shadow-yellow-500/30 active:scale-95 uppercase'
       }`}>
-        {tier === 'FREE' ? 'Subir a Standard' : tier === 'STANDARD' ? 'Subir a VIP' : 'Gestionar Plan'}
+        {loadingPortal ? 'Cargando...' : tier === 'FREE' ? 'Subir a Standard' : 'Gestionar Suscripción'}
       </button>
 
       <PricingModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
