@@ -10,6 +10,7 @@ import AdminUsers from './pages/admin/AdminUsers';
 import LiveMonitor from './pages/LiveMonitor';
 import LandingPage from './pages/LandingPage';
 import GetStartedWizard from './pages/GetStartedWizard';
+import AntiBlockGuide from './pages/AntiBlockGuide';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore();
@@ -47,6 +48,7 @@ function App() {
         <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/live-monitor" element={<LiveMonitor />} />
+          <Route path="/security" element={<AntiBlockGuide />} />
           <Route path="/bots" element={<Navigate to="/dashboard" replace />} />
           <Route path="/bot/:id/flow" element={<FlowBuilder />} />
           <Route path="/admin/users" element={<AdminUsers />} />
