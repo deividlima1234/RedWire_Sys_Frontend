@@ -27,6 +27,10 @@ const AdminUsers = () => {
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
   const [copiedCode, setCopiedCode] = useState('');
   const [betaClosed, setBetaClosed] = useState(false);
+  const [workerUrl, setWorkerUrl] = useState('');
+  const [isSavingServer, setIsSavingServer] = useState(false);
+  const [isPinging, setIsPinging] = useState(false);
+  const [pingStatus, setPingStatus] = useState(null);
 
   useEffect(() => {
     fetchUsers();
@@ -47,14 +51,16 @@ const AdminUsers = () => {
   const fetchBetaData = async () => {
     setBetaLoading(true);
     try {
-      const [codesRes, pendingRes, settingsRes] = await Promise.all([
+      const [codesRes, pendingRes, settingsRes, serverRes] = await Promise.all([
         api.get('/admin/beta-codes'),
         api.get('/admin/pending-users'),
-        api.get('/admin/beta-settings')
+        api.get('/admin/beta-settings'),
+        api.get('/admin/server-settings')
       ]);
       setBetaCodes(codesRes.data || []);
       setPendingUsers(pendingRes.data || []);
       setBetaClosed(settingsRes.data?.registrationClosed || false);
+      setWorkerUrl(serverRes.data?.workerUrl || '');
     } catch (error) {
       console.error('Error fetching beta data:', error);
     } finally {
@@ -76,6 +82,51 @@ const AdminUsers = () => {
     } catch (error) {
       console.error('Error toggling beta registration status:', error);
       alert('Error en el servidor al cambiar el estado de la beta.');
+    }
+  };
+
+  const handleSaveServerSettings = async () => {
+    if (!workerUrl.trim()) {
+      alert('La URL del servidor Worker no puede estar vacía.');
+      return;
+    }
+    setIsSavingServer(true);
+    try {
+      const response = await api.post('/admin/server-settings', { workerUrl: workerUrl.trim() });
+      setWorkerUrl(response.data.workerUrl);
+      alert('¡Configuración de servidores guardada con éxito!');
+    } catch (error) {
+      console.error('Error saving server settings:', error);
+      alert('Error en el servidor al guardar la URL del Worker.');
+    } finally {
+      setIsSavingServer(false);
+    }
+  };
+
+  const handlePingWorker = async () => {
+    if (!workerUrl.trim()) {
+      alert('Por favor, ingresa una URL antes de probar.');
+      return;
+    }
+    setIsPinging(true);
+    setPingStatus(null);
+    try {
+      let testUrl = workerUrl.trim();
+      if (testUrl.endsWith('/')) {
+        testUrl = testUrl.substring(0, testUrl.length - 1);
+      }
+      
+      const response = await fetch(`${testUrl}/health`, { method: 'GET', mode: 'cors' });
+      if (response.ok) {
+        setPingStatus('success');
+      } else {
+        setPingStatus('error');
+      }
+    } catch (error) {
+      console.error('Ping failed:', error);
+      setPingStatus('error');
+    } finally {
+      setIsPinging(false);
     }
   };
 
@@ -397,6 +448,81 @@ const AdminUsers = () => {
             >
               {betaClosed ? '🔓 Abrir Registros' : '🔒 Cerrar Registros'}
             </button>
+          </div>
+
+          {/* CONFIGURACIÓN DE VARIABLES DE SERVIDORES */}
+          <div className="p-6 bg-dark-200 border border-white/5 rounded-3xl relative overflow-hidden shadow-xl space-y-6">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl"></div>
+            
+            <div className="text-left space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-xs">⚙️</span>
+                <span className="text-[10px] font-black font-mono uppercase tracking-widest text-primary">
+                  Variables de Sistema
+                </span>
+              </div>
+              <h3 className="text-lg font-black text-white font-mono uppercase tracking-tight">Servidor de Conexión (Worker WhatsApp)</h3>
+              <p className="text-xs text-gray-400 font-semibold max-w-2xl leading-relaxed">
+                Define la URL del microservicio encargado de conectarse con la librería Baileys. Esta dirección se utilizará de forma global para generar códigos QR y despachar flujos a todos los bots en los planes <strong className="text-white">Free y Standard</strong>.
+              </p>
+            </div>
+
+            <div className="flex flex-col md:flex-row gap-4 items-end">
+              <div className="flex-1 w-full space-y-2 text-left">
+                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest font-mono">
+                  URL del Worker Server
+                </label>
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={workerUrl}
+                    onChange={(e) => {
+                      setWorkerUrl(e.target.value);
+                      setPingStatus(null);
+                    }}
+                    placeholder="https://redwire-worker.onrender.com"
+                    className="w-full pl-4 pr-12 py-3 bg-dark-100 border border-white/5 rounded-xl focus:outline-none focus:border-primary text-xs font-mono text-white placeholder-gray-600 transition-colors"
+                  />
+                  {pingStatus && (
+                    <span className="absolute right-4 top-3 text-sm animate-pulse">
+                      {pingStatus === 'success' ? '🟢' : '🔴'}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3 w-full md:w-auto shrink-0">
+                <button
+                  type="button"
+                  onClick={handlePingWorker}
+                  disabled={isPinging}
+                  className="w-1/2 md:w-auto px-4 py-3 bg-dark-100 hover:bg-dark-100/80 text-gray-300 font-mono font-black uppercase text-[10px] tracking-wider rounded-xl border border-white/5 transition-all disabled:opacity-50"
+                >
+                  {isPinging ? 'Probando...' : '🔌 Probar Conexión'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleSaveServerSettings}
+                  disabled={isSavingServer}
+                  className="w-1/2 md:w-auto px-6 py-3 bg-primary hover:bg-primary/90 text-dark-300 font-mono font-black uppercase text-[10px] tracking-wider rounded-xl border border-primary/10 transition-all hover:scale-105 active:scale-95 disabled:opacity-50"
+                >
+                  {isSavingServer ? 'Guardando...' : '💾 Guardar URL'}
+                </button>
+              </div>
+            </div>
+
+            {pingStatus && (
+              <div className={`p-4 rounded-xl border text-xs font-mono font-semibold text-left animate-in fade-in slide-in-from-top-2 duration-300 ${
+                pingStatus === 'success' 
+                  ? 'bg-green-500/5 border-green-500/20 text-green-400' 
+                  : 'bg-red-500/5 border-red-500/20 text-red-400'
+              }`}>
+                {pingStatus === 'success' 
+                  ? '✓ ¡Conexión exitosa! El microservicio Worker está en línea y respondiendo a las solicitudes de salud.' 
+                  : '✗ Conexión fallida. El servidor en la URL ingresada no responde o no tiene CORS habilitado. Asegúrate de que el microservicio esté en línea.'}
+              </div>
+            )}
           </div>
 
           {/* PANEL DE NOTIFICACIONES: SOLICITUDES PENDIENTES */}
