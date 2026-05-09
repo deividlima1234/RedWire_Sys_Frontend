@@ -1,16 +1,43 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import useAuthStore from '../store/useAuthStore';
+import api from '../config/axios';
 
 const LandingPage = () => {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuthStore();
   const [activeFaq, setActiveFaq] = useState(null);
+  const [prices, setPrices] = useState({
+    standard: { amount: 29, currency: 'USD' },
+    vip: { amount: 99, currency: 'USD' }
+  });
 
   // Estados de la simulación dinámica del Constructor de Flujos
   const [simStep, setSimStep] = useState(0);
 
   useEffect(() => {
+    // Sincronizar precios dinámicos desde Stripe
+    const fetchPrices = async () => {
+      try {
+        const response = await api.get('/subscription/prices');
+        if (response.data) {
+          setPrices({
+            standard: {
+              amount: response.data.standard?.amount ?? 29,
+              currency: response.data.standard?.currency ?? 'USD'
+            },
+            vip: {
+              amount: response.data.vip?.amount ?? 99,
+              currency: response.data.vip?.currency ?? 'USD'
+            }
+          });
+        }
+      } catch (err) {
+        console.error('Error fetching dynamic prices', err);
+      }
+    };
+    fetchPrices();
+
     // Secuencia de simulación con tiempos realistas de conversación
     const interval = setInterval(() => {
       setSimStep((prev) => (prev + 1) % 6);
@@ -482,7 +509,7 @@ const LandingPage = () => {
               </div>
 
               <div className="flex items-baseline gap-1.5 py-4 border-y border-white/5">
-                <span className="text-3xl font-black text-white uppercase tracking-tight font-mono">$29 USD</span>
+                <span className="text-3xl font-black text-white uppercase tracking-tight font-mono">${prices.standard.amount} {prices.standard.currency}</span>
                 <span className="text-[10px] text-gray-500 font-mono uppercase font-black">/ mensual</span>
               </div>
 
@@ -543,7 +570,7 @@ const LandingPage = () => {
               </div>
 
               <div className="flex items-baseline gap-1.5 py-4 border-y border-white/5">
-                <span className="text-3xl font-black text-white uppercase tracking-tight font-mono">$99 USD</span>
+                <span className="text-3xl font-black text-white uppercase tracking-tight font-mono">${prices.vip.amount} {prices.vip.currency}</span>
                 <span className="text-[10px] text-gray-500 font-mono uppercase font-black">/ mensual</span>
               </div>
 

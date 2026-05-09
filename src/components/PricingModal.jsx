@@ -6,6 +6,36 @@ import useAuthStore from '../store/useAuthStore';
 const PricingModal = ({ isOpen, onClose }) => {
   const { user, token, refreshUser } = useAuthStore();
   const [loading, setLoading] = React.useState(false);
+  const [prices, setPrices] = React.useState({
+    standard: { amount: 29, currency: 'USD' },
+    vip: { amount: 99, currency: 'USD' }
+  });
+
+  React.useEffect(() => {
+    if (!isOpen) return;
+
+    const fetchPrices = async () => {
+      try {
+        const response = await api.get('/subscription/prices');
+        if (response.data) {
+          setPrices({
+            standard: {
+              amount: response.data.standard?.amount ?? 29,
+              currency: response.data.standard?.currency ?? 'USD'
+            },
+            vip: {
+              amount: response.data.vip?.amount ?? 99,
+              currency: response.data.vip?.currency ?? 'USD'
+            }
+          });
+        }
+      } catch (err) {
+        console.error('Error fetching dynamic prices in modal', err);
+      }
+    };
+
+    fetchPrices();
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
@@ -52,7 +82,7 @@ const PricingModal = ({ isOpen, onClose }) => {
               <span className="bg-primary text-dark-300 text-[10px] font-black px-2 py-1 rounded uppercase">Más Popular</span>
             </div>
             
-            <div className="text-4xl font-black text-white mb-8">$29<span className="text-lg text-gray-500 font-medium">/mes</span></div>
+            <div className="text-4xl font-black text-white mb-8">${prices.standard.amount} {prices.standard.currency}<span className="text-lg text-gray-500 font-medium">/mes</span></div>
             
             <ul className="space-y-4 mb-8">
               {[
@@ -87,7 +117,7 @@ const PricingModal = ({ isOpen, onClose }) => {
               </div>
             </div>
             
-            <div className="text-4xl font-black text-white mb-8">$99<span className="text-lg text-gray-500 font-medium">/mes</span></div>
+            <div className="text-4xl font-black text-white mb-8">${prices.vip.amount} {prices.vip.currency}<span className="text-lg text-gray-500 font-medium">/mes</span></div>
             
             <ul className="space-y-4 mb-8">
               {[

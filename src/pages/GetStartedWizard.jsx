@@ -15,13 +15,38 @@ const GetStartedWizard = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [prices, setPrices] = useState({
+    standard: { amount: 29, currency: 'USD' },
+    vip: { amount: 99, currency: 'USD' }
+  });
 
-  // Cargar el plan de la URL si viene configurado
+  // Cargar el plan de la URL si viene configurado y consultar precios reales
   useEffect(() => {
     const planParam = searchParams.get('plan');
     if (planParam && ['free', 'standard', 'vip'].includes(planParam.toLowerCase())) {
       setSelectedPlan(planParam.toLowerCase());
     }
+
+    const fetchPrices = async () => {
+      try {
+        const response = await api.get('/subscription/prices');
+        if (response.data) {
+          setPrices({
+            standard: {
+              amount: response.data.standard?.amount ?? 29,
+              currency: response.data.standard?.currency ?? 'USD'
+            },
+            vip: {
+              amount: response.data.vip?.amount ?? 99,
+              currency: response.data.vip?.currency ?? 'USD'
+            }
+          });
+        }
+      } catch (err) {
+        console.error('Error fetching dynamic prices in onboarding', err);
+      }
+    };
+    fetchPrices();
   }, [searchParams]);
 
   const handleNextStep = () => {
@@ -77,14 +102,14 @@ const GetStartedWizard = () => {
       id: 'standard',
       name: 'Plan Standard',
       accent: 'border-primary/40 text-primary bg-primary/5 shadow-md shadow-primary/5',
-      price: '$29 USD',
+      price: `$${prices.standard.amount} ${prices.standard.currency}`,
       features: ['Mensajes Ilimitados', 'Hasta 3 Bots activos', 'Constructor multimedia', 'Monitor en vivo', 'Solo Baileys QR']
     },
     {
       id: 'vip',
       name: 'Plan VIP',
       accent: 'border-amber-500/40 text-amber-500 bg-amber-500/5 shadow-md shadow-amber-500/5',
-      price: '$99 USD',
+      price: `$${prices.vip.amount} ${prices.vip.currency}`,
       features: ['Meta Cloud API Oficial', '100% en la nube (0 celular)', 'Hasta 10 Bots activos', 'Soporte Slack 24/7', 'Monitor multi-agente']
     }
   ];
@@ -349,7 +374,9 @@ const GetStartedWizard = () => {
                 <div className="text-right">
                   <span className="text-[9px] text-gray-500 font-mono uppercase font-black tracking-wider">Precio Mensual</span>
                   <div className="text-2xl font-black text-primary font-mono">
-                    {selectedPlan === 'standard' ? '$29 USD' : '$99 USD'}
+                    {selectedPlan === 'standard' 
+                      ? `$${prices.standard.amount} ${prices.standard.currency}` 
+                      : `$${prices.vip.amount} ${prices.vip.currency}`}
                   </div>
                 </div>
               </div>
