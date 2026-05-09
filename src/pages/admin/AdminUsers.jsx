@@ -31,6 +31,7 @@ const AdminUsers = () => {
   const [isSavingServer, setIsSavingServer] = useState(false);
   const [isPinging, setIsPinging] = useState(false);
   const [pingStatus, setPingStatus] = useState(null);
+  const [pingMessage, setPingMessage] = useState('');
 
   useEffect(() => {
     fetchUsers();
@@ -110,21 +111,20 @@ const AdminUsers = () => {
     }
     setIsPinging(true);
     setPingStatus(null);
+    setPingMessage('');
     try {
-      let testUrl = workerUrl.trim();
-      if (testUrl.endsWith('/')) {
-        testUrl = testUrl.substring(0, testUrl.length - 1);
-      }
-      
-      const response = await fetch(`${testUrl}/health`, { method: 'GET', mode: 'cors' });
-      if (response.ok) {
+      const response = await api.post('/admin/server-settings/test-connection', { workerUrl: workerUrl.trim() });
+      if (response.data.online) {
         setPingStatus('success');
+        setPingMessage(response.data.message);
       } else {
         setPingStatus('error');
+        setPingMessage(response.data.message);
       }
     } catch (error) {
-      console.error('Ping failed:', error);
+      console.error('Ping proxy failed:', error);
       setPingStatus('error');
+      setPingMessage('Error de red al intentar conectar con el servidor de backend core para realizar la prueba.');
     } finally {
       setIsPinging(false);
     }
@@ -519,8 +519,8 @@ const AdminUsers = () => {
                   : 'bg-red-500/5 border-red-500/20 text-red-400'
               }`}>
                 {pingStatus === 'success' 
-                  ? '✓ ¡Conexión exitosa! El microservicio Worker está en línea y respondiendo a las solicitudes de salud.' 
-                  : '✗ Conexión fallida. El servidor en la URL ingresada no responde o no tiene CORS habilitado. Asegúrate de que el microservicio esté en línea.'}
+                  ? `✓ ¡Conexión exitosa! El microservicio Worker está en línea y es accesible desde el servidor central: ${pingMessage}` 
+                  : `✗ Conexión fallida: ${pingMessage}`}
               </div>
             )}
           </div>
