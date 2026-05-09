@@ -133,7 +133,7 @@ const LandingPage = () => {
       <section className="max-w-7xl mx-auto px-6 pt-20 pb-24 text-center space-y-8 relative">
         <div className="inline-flex items-center gap-2.5 px-4 py-1.5 bg-primary/10 border border-primary/20 rounded-full text-[10px] text-primary font-mono font-black uppercase tracking-widest shadow-lg shadow-primary/5">
           <span className="w-1.5 h-1.5 rounded-full bg-primary animate-ping"></span>
-          Impulsado por Corporación EddamCore
+          🚀 PROGRAMA DE PIONEROS • ENTORNO BETA LIMITADO
         </div>
         
         <h1 className="text-4xl md:text-7xl font-black text-white tracking-tighter leading-tight uppercase max-w-5xl mx-auto font-mono">
@@ -141,7 +141,7 @@ const LandingPage = () => {
         </h1>
         
         <p className="text-sm md:text-base text-gray-400 max-w-3xl mx-auto leading-relaxed font-semibold">
-          Diseña flujos conversacionales dinámicos mediante nuestro potente constructor visual drag & drop. Elige entre la conectividad económica de Baileys QR o el canal VIP con Meta Cloud API Oficial.
+          Diseña flujos conversacionales dinámicos mediante nuestro potente constructor visual drag & drop. Elige entre la conectividad económica de Baileys QR o el canal VIP con Meta Cloud API Oficial. Actualmente lanzando la Fase Beta Cerrada. Únete gratis como pionero y disfruta del Plan Standard sin costo.
         </p>
 
         <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -500,7 +500,27 @@ const LandingPage = () => {
           </div>
 
           {/* Plan Standard */}
-          <div className="p-8 bg-dark-200 rounded-3xl border border-primary/30 shadow-[0_0_50px_rgba(255,0,51,0.02)] flex flex-col justify-between hover:border-primary/50 transition-all duration-300 relative">
+          <div className="p-8 bg-dark-200 rounded-3xl border border-primary/30 shadow-[0_0_50px_rgba(255,0,51,0.02)] flex flex-col justify-between hover:border-primary/50 transition-all duration-300 relative overflow-hidden">
+            
+            {/* Capa de Bloqueo Glassmorphism - Programa de Pioneros */}
+            <div className="absolute inset-0 z-10 backdrop-blur-md bg-dark-300/80 rounded-3xl p-6 flex flex-col justify-center items-center text-center border-2 border-primary/40 shadow-2xl">
+              <span className="w-12 h-12 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center text-primary text-xl mb-4 shadow-lg shadow-primary/5 animate-bounce">
+                🔐
+              </span>
+              <span className="text-[9px] font-black tracking-widest text-primary font-mono uppercase bg-primary/10 px-2.5 py-1 rounded border border-primary/20">
+                PIONEROS CLOSED BETA
+              </span>
+              <h4 className="text-sm font-black text-white mt-3 uppercase tracking-tight font-mono">PLAN TOTALMENTE GRATIS</h4>
+              <p className="text-[10px] text-gray-400 font-bold mt-2 leading-relaxed max-w-[210px]">
+                Actualmente estamos seleccionando a un grupo exclusivo de negocios para probar RedWire en producción real a cambio de feedback de uso.
+              </p>
+              <button
+                onClick={() => handlePlanSelect('standard')}
+                className="mt-5 w-full py-3 bg-primary hover:bg-primary-dark text-white font-black uppercase tracking-widest text-[10px] rounded-xl transition-all shadow-lg shadow-primary/20 hover:scale-105 active:scale-95"
+              >
+                Solicitar Acceso Beta 🚀
+              </button>
+            </div>
             <div className="space-y-6">
               <div>
                 <span className="text-[10px] text-primary font-mono font-black uppercase tracking-widest">MÁXIMA EFICIENCIA</span>

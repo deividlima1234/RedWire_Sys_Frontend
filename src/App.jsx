@@ -12,8 +12,16 @@ import LandingPage from './pages/LandingPage';
 import GetStartedWizard from './pages/GetStartedWizard';
 
 const ProtectedRoute = ({ children }) => {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  return isAuthenticated ? children : <Navigate to="/login" replace />;
+  const { isAuthenticated, user } = useAuthStore();
+  
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  
+  // Si está autenticado pero NO está autorizado en beta y NO es admin, redirigir al portal de autorización
+  if (user && !user.betaAuthorized && user.role !== 'ROLE_ADMIN' && user.role !== 'ADMIN') {
+    return <Navigate to="/get-started?step=authorize" replace />;
+  }
+  
+  return children;
 };
 
 function App() {

@@ -7,6 +7,7 @@ const GetStartedWizard = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const setAuth = useAuthStore((state) => state.setAuth);
+  const user = useAuthStore((state) => state.user);
 
   const [step, setStep] = useState(1);
   const [selectedPlan, setSelectedPlan] = useState('free');
@@ -15,6 +16,8 @@ const GetStartedWizard = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [betaCode, setBetaCode] = useState('');
+  const [verificationSuccess, setVerificationSuccess] = useState(false);
   const [prices, setPrices] = useState({
     standard: { amount: 29, currency: 'USD' },
     vip: { amount: 99, currency: 'USD' }
@@ -25,6 +28,11 @@ const GetStartedWizard = () => {
     const planParam = searchParams.get('plan');
     if (planParam && ['free', 'standard', 'vip'].includes(planParam.toLowerCase())) {
       setSelectedPlan(planParam.toLowerCase());
+    }
+
+    const stepParam = searchParams.get('step');
+    if (stepParam === 'authorize') {
+      setStep(4);
     }
 
     const fetchPrices = async () => {
@@ -72,19 +80,50 @@ const GetStartedWizard = () => {
       
       // 2. Autologin transparente
       const loginResponse = await api.post('/auth/login', { email, password });
-      const { token, id, email: userEmail, role } = loginResponse.data;
+      const { token, id, email: userEmail, role, subscriptionTier, betaAuthorized } = loginResponse.data;
       
-      // Guardar sesión e ir directo al panel o pantalla de pago
-      setAuth(token, { id, email: userEmail, role });
+      // Guardar sesión - por defecto no autorizada
+      setAuth(token, { id, email: userEmail, role, subscriptionTier, betaAuthorized: betaAuthorized || false });
       
-      if (selectedPlan === 'free') {
-        navigate('/dashboard');
-      } else {
-        setStep(4);
-      }
+      // En la fase beta, todos los registros son redirigidos obligatoriamente al muro de verificación
+      setStep(4);
     } catch (err) {
       console.error("Error en onboarding:", err);
       setError(err.response?.data?.message || err.response?.data || 'Error en el servidor. Revisa los datos.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleVerifyCode = async (e) => {
+    e.preventDefault();
+    if (!betaCode.trim()) return;
+
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const response = await api.post('/auth/verify-beta-code', { code: betaCode });
+      if (response.data && response.data.betaAuthorized) {
+        setVerificationSuccess(true);
+        
+        // Actualizar el estado en el store global
+        const currentToken = useAuthStore.getState().token;
+        const currentUser = useAuthStore.getState().user;
+        setAuth(currentToken, {
+          ...currentUser,
+          betaAuthorized: true,
+          subscriptionTier: 'STANDARD'
+        });
+
+        // Transición visual triunfante
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 2200);
+      }
+    } catch (err) {
+      console.error("Error al verificar código beta:", err);
+      setError(err.response?.data?.message || err.response?.data || 'Código de autorización inválido o error en la verificación.');
     } finally {
       setIsLoading(false);
     }
@@ -347,16 +386,16 @@ const GetStartedWizard = () => {
           </div>
         )}
 
-        {/* CONTENIDO DE PASO 4: MURO DE PAGO SEGURO STRIPE */}
+        {/* CONTENIDO DE PASO 4: MURO DE AUTORIZACIÓN BETA */}
         {step === 4 && (
           <div className="space-y-8 animate-in fade-in duration-300">
             <div className="space-y-2 text-center">
-              <span className="text-[10px] font-black tracking-widest uppercase text-primary font-mono bg-primary/10 px-3 py-1 rounded-full border border-primary/20">
-                🚀 ¡Registro Completo!
+              <span className="text-[10px] font-black tracking-widest uppercase text-primary font-mono bg-primary/10 px-3 py-1.5 rounded-full border border-primary/20">
+                ✨ PROGRAMA DE PIONEROS • REDWIRE
               </span>
-              <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight uppercase font-mono mt-2">ACTIVA TU ENTORNO PREMIUM</h2>
+              <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight uppercase font-mono mt-2">AUTORIZACIÓN DE ENTORNO BETA</h2>
               <p className="text-xs text-gray-400 font-semibold max-w-md mx-auto">
-                Para activar tu piloto automático sin límites de mensajes y bots, completa tu suscripción segura.
+                RedWire System se encuentra en Fase Beta Cerrada. Para dar permiso de autorización y activar tu Plan Standard de Pionero de por vida gratis, ingresa tu Código de Verificación.
               </p>
             </div>
 
@@ -364,101 +403,78 @@ const GetStartedWizard = () => {
               {/* Resplandor decorativo */}
               <div className="absolute -top-12 -right-12 w-32 h-32 bg-primary/5 rounded-full blur-3xl"></div>
 
-              <div className="flex justify-between items-center mb-6">
-                <div>
-                  <span className="text-[9px] text-gray-500 font-mono uppercase font-black tracking-wider">Plan Elegido</span>
-                  <h3 className="text-xl font-black text-white uppercase font-mono">
-                    {selectedPlan === 'standard' ? '⚡ Plan Standard' : '💎 Plan VIP'}
-                  </h3>
-                </div>
-                <div className="text-right">
-                  <span className="text-[9px] text-gray-500 font-mono uppercase font-black tracking-wider">Precio Mensual</span>
-                  <div className="text-2xl font-black text-primary font-mono">
-                    {selectedPlan === 'standard' 
-                      ? `$${prices.standard.amount} ${prices.standard.currency}` 
-                      : `$${prices.vip.amount} ${prices.vip.currency}`}
+              {verificationSuccess ? (
+                <div className="text-center py-6 space-y-4 animate-in zoom-in duration-300">
+                  <div className="w-16 h-16 bg-green-500/10 border border-green-500/20 text-green-500 text-3xl flex items-center justify-center rounded-full mx-auto animate-bounce">
+                    🎉
                   </div>
+                  <h3 className="text-lg font-black text-white uppercase font-mono">¡ACCESO AUTORIZADO!</h3>
+                  <p className="text-xs text-gray-400 font-semibold">
+                    Tu código ha sido validado con éxito. Se ha activado tu Plan Standard de Pionero. Redireccionando a tu espacio de trabajo...
+                  </p>
+                  <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mt-4"></div>
                 </div>
-              </div>
+              ) : (
+                <form onSubmit={handleVerifyCode} className="space-y-6">
+                  <div className="space-y-2.5 text-center">
+                    <label className="block text-[10px] text-gray-400 font-mono uppercase tracking-wider font-bold">Código de Acceso de 12 Caracteres</label>
+                    <input 
+                      type="text"
+                      required
+                      placeholder="RW-BETA-XXXX"
+                      value={betaCode}
+                      onChange={(e) => setBetaCode(e.target.value.toUpperCase())}
+                      className="w-full bg-dark-100 border border-white/5 focus:border-primary rounded-xl px-4 py-3.5 text-base text-white text-center font-mono focus:outline-none transition-all tracking-widest placeholder:opacity-40"
+                      disabled={isLoading}
+                      maxLength={12}
+                    />
+                  </div>
 
-              {/* Beneficios clave */}
-              <ul className="space-y-3.5 mb-8 border-t border-b border-white/5 py-6">
-                {selectedPlan === 'standard' ? (
-                  <>
-                    <li className="flex items-center text-xs text-gray-300 font-bold">
-                      <span className="mr-3 text-primary">✔</span> Mensajes ilimitados hacia tus clientes
-                    </li>
-                    <li className="flex items-center text-xs text-gray-300 font-bold">
-                      <span className="mr-3 text-primary">✔</span> Conecta hasta 3 bots de WhatsApp activos
-                    </li>
-                    <li className="flex items-center text-xs text-gray-300 font-bold">
-                      <span className="mr-3 text-primary">✔</span> Consola de diagnóstico y monitor en vivo
-                    </li>
-                  </>
-                ) : (
-                  <>
-                    <li className="flex items-center text-xs text-amber-500 font-bold">
-                      <span className="mr-3 text-amber-500">✔</span> API Oficial de Meta Cloud (Cero bloqueos)
-                    </li>
-                    <li className="flex items-center text-xs text-gray-300 font-bold">
-                      <span className="mr-3 text-amber-500">✔</span> Conecta hasta 10 bots de WhatsApp activos
-                    </li>
-                    <li className="flex items-center text-xs text-gray-300 font-bold">
-                      <span className="mr-3 text-amber-500">✔</span> Soporte prioritario Slack 24/7 de ingenieros
-                    </li>
-                  </>
-                )}
-              </ul>
-
-              {error && (
-                <div className="text-xs text-red-500 bg-red-500/10 p-3 rounded-xl border border-red-500/20 text-center font-bold font-mono mb-4">
-                  {error}
-                </div>
-              )}
-
-              <div className="space-y-4">
-                <button
-                  onClick={async () => {
-                    setIsLoading(true);
-                    setError('');
-                    try {
-                      const response = await api.post('/subscription/checkout-session', { tier: selectedPlan });
-                      if (response.data && response.data.url) {
-                        window.location.href = response.data.url;
-                      } else {
-                        throw new Error("No se recibió la URL de Stripe.");
-                      }
-                    } catch (err) {
-                      console.error("Error al iniciar checkout:", err);
-                      setError(err.response?.data?.message || err.message || "Error al conectar con Stripe. Intenta de nuevo.");
-                      setIsLoading(false);
-                    }
-                  }}
-                  disabled={isLoading}
-                  className="w-full py-4 bg-primary hover:bg-primary-dark text-dark-300 font-black uppercase tracking-widest text-xs rounded-xl transition-all shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2 animate-pulse"
-                >
-                  {isLoading ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-dark-300 border-t-transparent rounded-full animate-spin"></div>
-                      <span>Cargando Pago Seguro...</span>
-                    </>
-                  ) : (
-                    <span>Proceder al Pago Seguro 💳</span>
+                  {error && (
+                    <div className="text-xs text-red-500 bg-red-500/10 p-3.5 rounded-xl border border-red-500/20 text-center font-bold font-mono">
+                      {error}
+                    </div>
                   )}
-                </button>
 
-                <button
-                  onClick={() => navigate('/dashboard')}
-                  disabled={isLoading}
-                  className="w-full py-3 bg-transparent border border-white/10 hover:border-white/20 text-gray-400 hover:text-white font-mono uppercase tracking-wider text-[10px] rounded-xl transition-all font-bold"
-                >
-                  Continuar con el Plan FREE por ahora
-                </button>
-              </div>
+                  <div className="space-y-4 pt-2">
+                    <button
+                      type="submit"
+                      disabled={isLoading || !betaCode.trim()}
+                      className="w-full py-4 bg-primary hover:bg-primary-dark text-white font-black uppercase tracking-widest text-xs rounded-xl transition-all shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2"
+                    >
+                      {isLoading ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          <span>Validando Código...</span>
+                        </>
+                      ) : (
+                        <span>Autorizar y Activar Workspace 🚀</span>
+                      )}
+                    </button>
+
+                    <div className="relative flex py-2 items-center">
+                      <div className="flex-grow border-t border-white/5"></div>
+                      <span className="flex-shrink mx-4 text-[9px] text-gray-500 font-mono uppercase font-bold">¿No tienes código?</span>
+                      <div className="flex-grow border-t border-white/5"></div>
+                    </div>
+
+                    <a
+                      href={`https://wa.me/51983032706?text=${encodeURIComponent(
+                        `Hola EddamCore, acabo de registrarme en RedWire System con el correo ${user?.email || email || ''} y me gustaría solicitar mi código de verificación de pionero para activar mi cuenta.`
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full py-3.5 bg-green-500/10 hover:bg-green-500/20 border border-green-500/20 hover:border-green-500/40 text-green-500 font-mono uppercase tracking-wider text-[10px] rounded-xl transition-all font-black flex items-center justify-center gap-2"
+                    >
+                      💬 Solicitar Código de Pionero por WhatsApp
+                    </a>
+                  </div>
+                </form>
+              )}
             </div>
 
             <p className="text-center text-[9px] text-gray-600 font-mono font-bold uppercase tracking-wider">
-              🔒 Transacciones encriptadas de extremo a extremo procesadas por Stripe
+              EddamCore © RedWire System Pioneers Program • Beta Limitada Privada
             </p>
           </div>
         )}
