@@ -136,6 +136,22 @@ const Sidebar = ({ isOpen, onClose, onAddNode }) => {
             <svg className={`w-5 h-5 text-blue-500 ${isCollapsed ? 'md:mr-0 mr-3' : 'mr-3'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
             {(!isCollapsed || window.innerWidth < 768) && <span className="text-gray-300 text-sm font-medium">Smart Delay</span>}
           </div>
+
+          {/* Node: Capture Input */}
+          <div 
+            className={`border border-dark-100 bg-dark-100 hover:border-violet-500 rounded-xl cursor-grab active:scale-95 transition-all flex items-center select-none ${
+              isCollapsed ? 'md:p-3 p-3 md:justify-center' : 'p-3'
+            }`}
+            onDragStart={(event) => onDragStart(event, 'capture')}
+            onClick={() => onAddNode('capture')}
+            draggable
+            title={isCollapsed ? "Capture Input (Capturar Entrada)" : "Haz clic o arrastra para añadir"}
+          >
+            <svg className={`w-5 h-5 text-violet-500 ${isCollapsed ? 'md:mr-0 mr-3' : 'mr-3'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            {(!isCollapsed || window.innerWidth < 768) && <span className="text-gray-300 text-sm font-medium">Capture Input</span>}
+          </div>
         </div>
         
         {/* Footer info text */}

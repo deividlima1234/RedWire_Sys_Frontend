@@ -17,6 +17,7 @@ import ConditionNode from './nodes/ConditionNode';
 import DelayNode from './nodes/DelayNode';
 import InteractiveNode from './nodes/InteractiveNode';
 import MediaNode from './nodes/MediaNode';
+import CaptureNode from './nodes/CaptureNode';
 import api from '../../config/axios';
 import { preconfiguredTemplates } from './templates/preconfiguredTemplates';
 import useAuthStore from '../../store/useAuthStore';
@@ -37,6 +38,7 @@ const nodeTypes = {
   delay: DelayNode,
   interactive: InteractiveNode,
   media: MediaNode,
+  capture: CaptureNode,
 };
 
 const getId = () => `dndnode_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
