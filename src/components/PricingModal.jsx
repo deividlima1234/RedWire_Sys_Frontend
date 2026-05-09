@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import api from '../config/axios';
 import useAuthStore from '../store/useAuthStore';
 
@@ -25,9 +26,9 @@ const PricingModal = ({ isOpen, onClose }) => {
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-dark-300/80 backdrop-blur-sm" onClick={onClose}></div>
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose}></div>
       
       <div className="bg-dark-200 border border-dark-100 rounded-3xl w-full max-w-4xl overflow-hidden shadow-2xl relative z-10 animate-in fade-in zoom-in duration-300">
         <div className="p-8 border-b border-dark-100 flex justify-between items-center bg-dark-100/30">
@@ -117,7 +118,8 @@ const PricingModal = ({ isOpen, onClose }) => {
           <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Pago seguro procesado por RedWire Financial</p>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
