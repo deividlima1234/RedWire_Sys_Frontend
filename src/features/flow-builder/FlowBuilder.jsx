@@ -59,6 +59,7 @@ const FlowBuilder = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isPasteJsonOpen, setIsPasteJsonOpen] = useState(false);
   const [pasteJsonText, setPasteJsonText] = useState('');
+  const [validationError, setValidationError] = useState(null);
 
   // Historial para deshacer / rehacer
   const [history, setHistory] = useState({
@@ -240,6 +241,48 @@ const FlowBuilder = () => {
     return true;
   };
 
+  const validateFlowJson = (jsonData) => {
+    if (!jsonData || typeof jsonData !== 'object') {
+      return {
+        title: 'Formato no Soportado',
+        message: 'El contenido analizado no es un objeto JSON válido.',
+        details: 'El archivo está vacío o no es un objeto.',
+        suggestion: 'Asegúrate de que el código empiece con { y termine con }.'
+      };
+    }
+
+    if (!jsonData.flowData) {
+      return {
+        title: 'Falta Nodo Principal (flowData)',
+        message: 'No se encontró la sección principal de configuración en tu JSON.',
+        details: "El objeto raíz debe contener la propiedad obligatoria 'flowData'.",
+        suggestion: 'Pídele a tu IA: "Asegúrate de encapsular los nodos y conexiones dentro de un objeto llamado flowData".'
+      };
+    }
+
+    if (!jsonData.flowData.nodes || !Array.isArray(jsonData.flowData.nodes)) {
+      return {
+        title: 'Nodos no Encontrados (nodes)',
+        message: 'Tu flujo conversacional no tiene nodos de ejecución.',
+        details: "Falta la propiedad 'nodes' dentro de 'flowData' o no es un arreglo válido.",
+        suggestion: 'Un flujo correcto necesita al menos un nodo Trigger y un nodo Message.'
+      };
+    }
+
+    // Check if there is at least one trigger node
+    const hasTrigger = jsonData.flowData.nodes.some(n => n.type === 'trigger');
+    if (!hasTrigger) {
+      return {
+        title: 'Falta Nodo Disparador (Trigger)',
+        message: 'Tu flujo conversacional nunca se activará porque no tiene un punto de entrada.',
+        details: "Ninguno de los nodos tiene el tipo 'trigger'. Todo flujo de RedWire debe iniciar con un trigger.",
+        suggestion: 'Agrega un nodo de tipo "trigger" al inicio del JSON conectado al resto de tus mensajes.'
+      };
+    }
+
+    return null; // Valid structure!
+  };
+
   const handleExportFlow = () => {
     if (!reactFlowInstance) return;
     const flowObject = reactFlowInstance.toObject();
@@ -285,8 +328,9 @@ const FlowBuilder = () => {
         const data = JSON.parse(e.target.result);
         
         // Validation check
-        if (!data.flowData || !data.flowData.nodes) {
-          alert('Error: El archivo JSON cargado no tiene un formato válido de RedWire System.');
+        const validationErr = validateFlowJson(data);
+        if (validationErr) {
+          setValidationError(validationErr);
           return;
         }
 
@@ -311,7 +355,12 @@ const FlowBuilder = () => {
         alert('¡Plantilla importada con éxito! 🎉 Guarda los cambios para desplegarlos.');
       } catch (err) {
         console.error('Failed to parse import JSON', err);
-        alert('Error: No se pudo descifrar el archivo JSON.');
+        setValidationError({
+          title: 'Error de Sintaxis JSON',
+          message: 'El contenido tiene caracteres inválidos o le faltan comas/llaves.',
+          details: err.message,
+          suggestion: 'Pega tu JSON en un validador en línea o pídele a tu IA: "Corrige los errores de sintaxis del JSON anterior y entrégamelo limpio".'
+        });
       }
     };
     reader.readAsText(file);
@@ -320,14 +369,20 @@ const FlowBuilder = () => {
   const handleImportJsonText = () => {
     try {
       if (!pasteJsonText.trim()) {
-        alert('Por favor, pega un código JSON válido.');
+        setValidationError({
+          title: 'Contenido Vacío',
+          message: 'No has ingresado ningún código JSON.',
+          details: 'El área de texto está completamente vacía.',
+          suggestion: 'Copia el bloque de código generado por tu IA y pégalo aquí para continuar.'
+        });
         return;
       }
       const data = JSON.parse(pasteJsonText);
       
       // Validation check
-      if (!data.flowData || !data.flowData.nodes) {
-        alert('Error: El formato del JSON no es válido de RedWire System.');
+      const validationErr = validateFlowJson(data);
+      if (validationErr) {
+        setValidationError(validationErr);
         return;
       }
 
@@ -352,7 +407,12 @@ const FlowBuilder = () => {
       alert('¡Código JSON importado con éxito! 🎉 Guarda los cambios para desplegarlos.');
     } catch (err) {
       console.error('Failed to parse import JSON text', err);
-      alert('Error: No se pudo descifrar el código JSON. Verifica que esté bien escrito.');
+      setValidationError({
+        title: 'Error de Sintaxis JSON',
+        message: 'El contenido tiene caracteres inválidos o le faltan comas/llaves.',
+        details: err.message,
+        suggestion: 'Asegúrate de no haber copiado texto adicional fuera de las llaves { } del JSON o pídele a tu IA que te devuelva el código limpio sin explicaciones.'
+      });
     }
   };
 
@@ -787,6 +847,57 @@ const FlowBuilder = () => {
                 className="flex-1 py-3 bg-primary hover:bg-primary-dark text-white font-black rounded-xl text-xs transition-all shadow-lg shadow-primary/10 uppercase"
               >
                 📥 Importar Flujo al Lienzo
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Detalle de Error de Validacion JSON */}
+      {validationError && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-dark-300/95 backdrop-blur-md animate-fade-in" onClick={() => setValidationError(null)}></div>
+          
+          <div className="bg-dark-200 border border-red-500/30 rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl shadow-red-500/5 relative z-10 animate-in fade-in zoom-in duration-300">
+            <div className="p-6 border-b border-dark-100 text-center bg-red-500/5 relative">
+              <div className="w-16 h-16 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center mx-auto mb-4 animate-bounce">
+                <span className="text-2xl">❌</span>
+              </div>
+              <h2 className="text-xl font-black text-white tracking-tight uppercase">{validationError.title || 'Error de Validación'}</h2>
+              <p className="text-red-400 text-xs mt-1 font-semibold uppercase tracking-wider">Formato Inválido de RedWire</p>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <div className="space-y-1">
+                <span className="text-[10px] text-gray-500 uppercase tracking-widest font-black">¿Qué ocurrió?</span>
+                <p className="text-sm text-gray-300 leading-relaxed font-semibold">
+                  {validationError.message}
+                </p>
+              </div>
+
+              {validationError.details && (
+                <div className="bg-dark-300 p-4 rounded-2xl border border-dark-100 font-mono text-xs text-red-300 break-all leading-relaxed max-h-36 overflow-y-auto custom-scrollbar">
+                  <span className="text-[10px] text-gray-500 uppercase tracking-wider font-bold block mb-1">Detalle técnico:</span>
+                  {validationError.details}
+                </div>
+              )}
+
+              <div className="bg-yellow-500/5 border border-yellow-500/20 rounded-2xl p-4">
+                <h4 className="text-xs font-black text-yellow-500 tracking-wide uppercase mb-1 flex items-center gap-1.5">
+                  💡 Sugerencia para corregirlo:
+                </h4>
+                <p className="text-gray-300 text-[11px] leading-relaxed font-medium">
+                  {validationError.suggestion}
+                </p>
+              </div>
+            </div>
+
+            <div className="p-6 bg-dark-100/10 border-t border-dark-100 flex gap-3">
+              <button
+                onClick={() => setValidationError(null)}
+                className="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white font-black rounded-xl text-sm transition-all shadow-lg shadow-red-500/10 uppercase"
+              >
+                Entendido, ir a corregir
               </button>
             </div>
           </div>
