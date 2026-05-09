@@ -64,13 +64,23 @@ const Dashboard = () => {
         const url = response.data.workerUrl;
         setActiveWorkerUrl(url);
         console.log("🔗 Conectando Socket.io al Worker dinámico:", url);
-        activeSocket = io(url, { autoConnect: false });
+        activeSocket = io(url, { 
+          autoConnect: false,
+          extraHeaders: {
+            "ngrok-skip-browser-warning": "true"
+          }
+        });
         setSocket(activeSocket);
       } catch (error) {
         console.error("Error fetching dynamic worker url", error);
         const fallbackUrl = import.meta.env.VITE_WORKER_URL || 'http://localhost:3000';
         setActiveWorkerUrl(fallbackUrl);
-        activeSocket = io(fallbackUrl, { autoConnect: false });
+        activeSocket = io(fallbackUrl, { 
+          autoConnect: false,
+          extraHeaders: {
+            "ngrok-skip-browser-warning": "true"
+          }
+        });
         setSocket(activeSocket);
       }
     };
@@ -147,7 +157,13 @@ const Dashboard = () => {
     if (!confirm('¿Estás seguro de que quieres desvincular esta cuenta de WhatsApp?')) return;
     try {
       const targetUrl = activeWorkerUrl || import.meta.env.VITE_WORKER_URL || 'http://localhost:3000';
-      await fetch(`${targetUrl}/worker/bot/${botId}/logout`, { method: 'POST' });
+      await fetch(`${targetUrl}/worker/bot/${botId}/logout`, { 
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true'
+        }
+      });
       fetchBots();
     } catch (error) {
       console.error("Error logging out bot", error);

@@ -252,7 +252,11 @@ const BotDiagnosticsModal = ({ isOpen, onClose, bot, onRefresh }) => {
     try {
       const targetUrl = activeWorkerUrl || import.meta.env.VITE_WORKER_URL || 'http://localhost:3000';
       const response = await fetch(`${targetUrl}/worker/bot/${bot.id}/start`, {
-        method: 'POST'
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true'
+        }
       });
       const data = await response.json();
 
