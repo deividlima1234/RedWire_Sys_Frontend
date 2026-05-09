@@ -22,6 +22,7 @@ const BotDiagnosticsModal = ({ isOpen, onClose, bot, onRefresh }) => {
   const [workerOnline, setWorkerOnline] = useState(null);
   const [healthStatus, setHealthStatus] = useState(null);
   const [loadingHealth, setLoadingHealth] = useState(true);
+  const [activeWorkerUrl, setActiveWorkerUrl] = useState('');
 
   // Estado para los logs de la terminal
   const [logs, setLogs] = useState([]);
@@ -46,7 +47,18 @@ const BotDiagnosticsModal = ({ isOpen, onClose, bot, onRefresh }) => {
       }
     };
 
+    const fetchWorkerUrl = async () => {
+      try {
+        const response = await api.get('/bots/worker-url');
+        setActiveWorkerUrl(response.data.workerUrl);
+      } catch (err) {
+        console.error("Error fetching dynamic worker URL in diagnostics", err);
+        setActiveWorkerUrl(import.meta.env.VITE_WORKER_URL || 'http://localhost:3000');
+      }
+    };
+
     fetchHealth();
+    fetchWorkerUrl();
   }, [bot.id]);
 
   // Generar logs de inicio y simular logs en vivo
@@ -238,8 +250,8 @@ const BotDiagnosticsModal = ({ isOpen, onClose, bot, onRefresh }) => {
     ]);
 
     try {
-      const workerUrl = import.meta.env.VITE_WORKER_URL || 'http://localhost:3000';
-      const response = await fetch(`${workerUrl}/worker/bot/${bot.id}/start`, {
+      const targetUrl = activeWorkerUrl || import.meta.env.VITE_WORKER_URL || 'http://localhost:3000';
+      const response = await fetch(`${targetUrl}/worker/bot/${bot.id}/start`, {
         method: 'POST'
       });
       const data = await response.json();

@@ -17,6 +17,7 @@ const Dashboard = () => {
   const [qrCode, setQrCode] = useState(null);
   const [selectedBotId, setSelectedBotId] = useState(null);
   const [socket, setSocket] = useState(null);
+  const [activeWorkerUrl, setActiveWorkerUrl] = useState('');
 
   // Estados para el Modal VIP de Meta
   const [isMetaModalOpen, setIsMetaModalOpen] = useState(false);
@@ -56,11 +57,29 @@ const Dashboard = () => {
 
     fetchBots();
     
-    const workerUrl = import.meta.env.VITE_WORKER_URL || 'http://localhost:3000';
-    const newSocket = io(workerUrl, { autoConnect: false });
-    setSocket(newSocket);
+    let activeSocket = null;
+    const loadWorkerSettingsAndInitSocket = async () => {
+      try {
+        const response = await api.get('/bots/worker-url');
+        const url = response.data.workerUrl;
+        setActiveWorkerUrl(url);
+        console.log("🔗 Conectando Socket.io al Worker dinámico:", url);
+        activeSocket = io(url, { autoConnect: false });
+        setSocket(activeSocket);
+      } catch (error) {
+        console.error("Error fetching dynamic worker url", error);
+        const fallbackUrl = import.meta.env.VITE_WORKER_URL || 'http://localhost:3000';
+        setActiveWorkerUrl(fallbackUrl);
+        activeSocket = io(fallbackUrl, { autoConnect: false });
+        setSocket(activeSocket);
+      }
+    };
     
-    return () => newSocket.close();
+    loadWorkerSettingsAndInitSocket();
+    
+    return () => {
+      if (activeSocket) activeSocket.close();
+    };
   }, []);
 
   useEffect(() => {
@@ -127,8 +146,8 @@ const Dashboard = () => {
   const handleLogoutBot = async (botId) => {
     if (!confirm('¿Estás seguro de que quieres desvincular esta cuenta de WhatsApp?')) return;
     try {
-      const workerUrl = import.meta.env.VITE_WORKER_URL || 'http://localhost:3000';
-      await fetch(`${workerUrl}/worker/bot/${botId}/logout`, { method: 'POST' });
+      const targetUrl = activeWorkerUrl || import.meta.env.VITE_WORKER_URL || 'http://localhost:3000';
+      await fetch(`${targetUrl}/worker/bot/${botId}/logout`, { method: 'POST' });
       fetchBots();
     } catch (error) {
       console.error("Error logging out bot", error);
