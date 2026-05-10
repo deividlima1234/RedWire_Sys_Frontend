@@ -184,6 +184,16 @@ const ActionNode = ({ id, data, isConnectable }) => {
                 onChange={(e) => handleFieldChange('clientCodeVar', e.target.value)}
               />
             </div>
+            <div>
+              <label className="block text-[9px] text-gray-400 mb-1 font-mono uppercase font-bold">URL de Login (Personalizada):</label>
+              <input
+                type="text"
+                className="w-full bg-dark-300 border border-dark-100 rounded text-xs text-white px-2.5 py-1.5 focus:outline-none focus:border-amber-500 transition-colors nodrag font-bold"
+                placeholder="https://redwire-bot.onrender.com/login"
+                value={data.clientLoginUrl || ''}
+                onChange={(e) => updateNodeData({ clientLoginUrl: e.target.value })}
+              />
+            </div>
             <p className="text-[8px] text-amber-500/80 font-mono font-bold leading-normal pt-1.5 border-t border-dark-100/20">
               Genera variables <span className="text-white">{"{{pioneer_status}}"}</span> y <span className="text-white">{"{{pioneer_login_url}}"}</span> automáticamente.
             </p>
