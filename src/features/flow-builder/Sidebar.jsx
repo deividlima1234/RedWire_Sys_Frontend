@@ -152,6 +152,22 @@ const Sidebar = ({ isOpen, onClose, onAddNode }) => {
             </svg>
             {(!isCollapsed || window.innerWidth < 768) && <span className="text-gray-300 text-sm font-medium">Capture Input</span>}
           </div>
+
+          {/* Node: Database Action */}
+          <div 
+            className={`border border-dark-100 bg-dark-100 hover:border-amber-500 rounded-xl cursor-grab active:scale-95 transition-all flex items-center select-none ${
+              isCollapsed ? 'md:p-3 p-3 md:justify-center' : 'p-3'
+            }`}
+            onDragStart={(event) => onDragStart(event, 'action')}
+            onClick={() => onAddNode('action')}
+            draggable
+            title={isCollapsed ? "Database Action (Acción DB / Registro)" : "Haz clic o arrastra para añadir"}
+          >
+            <svg className={`w-5 h-5 text-amber-500 ${isCollapsed ? 'md:mr-0 mr-3' : 'mr-3'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            {(!isCollapsed || window.innerWidth < 768) && <span className="text-gray-300 text-sm font-medium">Database Action</span>}
+          </div>
         </div>
         
         {/* Footer info text */}
