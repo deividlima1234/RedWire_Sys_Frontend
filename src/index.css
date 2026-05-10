@@ -19,7 +19,7 @@
   @apply bg-dark-200;
 }
 ::-webkit-scrollbar-thumb {
-  @apply bg-dark-100 rounded hover:bg-primary-dark transition-colors;
+  @apply bg-primary/40 rounded hover:bg-primary/70 transition-colors;
 }
 
 @keyframes loading-bar {
