@@ -11,6 +11,7 @@ import LiveMonitor from './pages/LiveMonitor';
 import LandingPage from './pages/LandingPage';
 import GetStartedWizard from './pages/GetStartedWizard';
 import AntiBlockGuide from './pages/AntiBlockGuide';
+import SessionTimeoutHandler from './components/SessionTimeoutHandler';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore();
@@ -37,6 +38,7 @@ function App() {
 
   return (
     <Router>
+      <SessionTimeoutHandler />
       <Routes>
         {/* Rutas Públicas de la Plataforma */}
         <Route path="/" element={<LandingPage />} />
