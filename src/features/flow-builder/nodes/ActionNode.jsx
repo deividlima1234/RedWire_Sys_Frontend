@@ -191,12 +191,40 @@ const ActionNode = ({ id, data, isConnectable }) => {
         )}
       </div>
 
-      <Handle
-        type="source"
-        position={Position.Bottom}
-        isConnectable={isConnectable}
-        className="w-3 h-3 !bg-white border-2 !border-dark-200 group-hover:!bg-amber-500"
-      />
+      {actionType === 'generate_beta_code' ? (
+        <Handle
+          type="source"
+          position={Position.Bottom}
+          id="bottom"
+          isConnectable={isConnectable}
+          className="w-3 h-3 !bg-white border-2 !border-dark-200 group-hover:!bg-amber-500"
+        />
+      ) : (
+        <div className="border-t border-dark-100/30 pt-1 pb-3 relative">
+          <div className="flex justify-between items-center text-[9px] px-4 font-mono font-bold">
+            <span className="text-green-400">🟢 Éxito (match)</span>
+            <span className="text-red-400">❌ Error (unmatch)</span>
+          </div>
+          <Handle
+            type="source"
+            position={Position.Bottom}
+            id="match"
+            isConnectable={isConnectable}
+            className="w-3.5 h-3.5 !bg-green-500 border-2 !border-dark-200 hover:scale-125 transition-transform"
+            style={{ left: '25%' }}
+            title="Sigue este camino en caso de Éxito"
+          />
+          <Handle
+            type="source"
+            position={Position.Bottom}
+            id="unmatch"
+            isConnectable={isConnectable}
+            className="w-3.5 h-3.5 !bg-red-500 border-2 !border-dark-200 hover:scale-125 transition-transform"
+            style={{ left: '75%' }}
+            title="Sigue este camino en caso de Error"
+          />
+        </div>
+      )}
     </div>
   );
 };
