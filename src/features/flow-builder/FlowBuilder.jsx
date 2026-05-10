@@ -19,6 +19,7 @@ import InteractiveNode from './nodes/InteractiveNode';
 import MediaNode from './nodes/MediaNode';
 import CaptureNode from './nodes/CaptureNode';
 import ActionNode from './nodes/ActionNode';
+import RouterNode from './nodes/RouterNode';
 import api from '../../config/axios';
 import { preconfiguredTemplates } from './templates/preconfiguredTemplates';
 import useAuthStore from '../../store/useAuthStore';
@@ -41,6 +42,7 @@ const nodeTypes = {
   media: MediaNode,
   capture: CaptureNode,
   action: ActionNode,
+  router: RouterNode,
 };
 
 const getId = () => `dndnode_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;

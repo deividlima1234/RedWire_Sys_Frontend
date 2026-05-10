@@ -168,6 +168,22 @@ const Sidebar = ({ isOpen, onClose, onAddNode }) => {
             </svg>
             {(!isCollapsed || window.innerWidth < 768) && <span className="text-gray-300 text-sm font-medium">Database Action</span>}
           </div>
+
+          {/* Node: Recipient Router */}
+          <div 
+            className={`border border-dark-100 bg-dark-100 hover:border-cyan-500 rounded-xl cursor-grab active:scale-95 transition-all flex items-center select-none ${
+              isCollapsed ? 'md:p-3 p-3 md:justify-center' : 'p-3'
+            }`}
+            onDragStart={(event) => onDragStart(event, 'router')}
+            onClick={() => onAddNode('router')}
+            draggable
+            title={isCollapsed ? "Recipient Router (Enrutador de Destinatarios)" : "Haz clic o arrastra para añadir"}
+          >
+            <svg className={`w-5 h-5 text-cyan-500 ${isCollapsed ? 'md:mr-0 mr-3' : 'mr-3'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+            </svg>
+            {(!isCollapsed || window.innerWidth < 768) && <span className="text-gray-300 text-sm font-medium">Recipient Router</span>}
+          </div>
         </div>
         
         {/* Footer info text */}
