@@ -329,12 +329,21 @@ const Dashboard = () => {
                       Vincular Meta
                     </button>
                   ) : bot.status !== 'CONNECTED' ? (
-                    <button 
-                      onClick={() => handleGetQr(bot.id)}
-                      className="flex-1 py-3 bg-primary text-dark-300 rounded-xl transition-all font-black uppercase tracking-widest text-xs shadow-lg shadow-primary/20"
-                    >
-                      Escanear QR
-                    </button>
+                    <>
+                      <button 
+                        onClick={() => handleGetQr(bot.id)}
+                        className="flex-1 py-3 bg-primary text-dark-300 rounded-xl transition-all font-black uppercase tracking-widest text-xs shadow-lg shadow-primary/20"
+                      >
+                        Escanear QR
+                      </button>
+                      <button 
+                        onClick={() => handleLogoutBot(bot.id)}
+                        className="flex-none px-4 py-3 border border-red-500/30 text-red-500 hover:bg-red-500 hover:text-white rounded-xl transition-all font-black uppercase tracking-widest text-xs"
+                        title="Limpiar Sesión Anterior"
+                      >
+                        Desvincular
+                      </button>
+                    </>
                   ) : (
                     <button 
                       onClick={() => handleLogoutBot(bot.id)}
@@ -429,6 +438,21 @@ const Dashboard = () => {
             <p className="text-gray-400 text-sm text-center">
               Abre WhatsApp en tu teléfono, ve a Dispositivos Vinculados y escanea este código.
             </p>
+
+            {!qrCode && (
+              <button
+                onClick={async () => {
+                  if (confirm('Esto eliminará cualquier sesión corrupta en el servidor. Luego cierra esta ventana y vuelve a Escanear QR. ¿Continuar?')) {
+                    await handleLogoutBot(selectedBotId);
+                    setSelectedBotId(null);
+                    if (socket) socket.disconnect();
+                  }
+                }}
+                className="mt-6 w-full py-2.5 bg-dark-100 hover:bg-red-500/10 text-red-400 border border-red-500/30 rounded-xl transition-all font-bold text-[10px] uppercase tracking-widest"
+              >
+                🔄 ¿Carga infinita? Forzar Limpieza
+              </button>
+            )}
           </div>
         </div>
       )}
