@@ -12,6 +12,8 @@ import LandingPage from './pages/LandingPage';
 import GetStartedWizard from './pages/GetStartedWizard';
 import AntiBlockGuide from './pages/AntiBlockGuide';
 import SessionTimeoutHandler from './components/SessionTimeoutHandler';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore();
@@ -45,6 +47,8 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/get-started" element={<GetStartedWizard />} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/terms" element={<TermsOfService />} />
         
         {/* Rutas Protegidas bajo Layout Compartido */}
         <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>

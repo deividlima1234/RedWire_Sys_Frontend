@@ -713,9 +713,16 @@ const LandingPage = () => {
             </div>
           </div>
 
-          <p className="text-[10px] text-gray-500 font-mono font-bold uppercase tracking-wider">
-            © {new Date().getFullYear()} RedWire System. Todos los derechos reservados.
-          </p>
+          <div className="flex flex-col items-center gap-2">
+            <p className="text-[10px] text-gray-500 font-mono font-bold uppercase tracking-wider">
+              © {new Date().getFullYear()} RedWire System. Todos los derechos reservados.
+            </p>
+            <div className="flex gap-4 text-[10px] text-gray-400 font-mono font-bold uppercase tracking-wider">
+              <Link to="/privacy-policy" className="hover:text-primary transition-colors">Políticas de Privacidad</Link>
+              <span className="text-white/10">|</span>
+              <Link to="/terms" className="hover:text-primary transition-colors">Términos de Servicio</Link>
+            </div>
+          </div>
 
           <p className="text-[9px] text-primary font-mono font-black uppercase tracking-widest">
             🛡️ SEGURIDAD INDUSTRIAL GARANTIZADA

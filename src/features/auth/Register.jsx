@@ -5,6 +5,7 @@ import api from '../../config/axios';
 const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [acceptPolicy, setAcceptPolicy] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ const Register = () => {
     setError('');
 
     try {
-      await api.post('/auth/register', { email, password });
+      await api.post('/auth/register', { email, password, acceptPrivacyPolicy: acceptPolicy });
       navigate('/login');
     } catch (err) {
       setError(err.response?.data?.message || err.response?.data || 'Server error');
@@ -62,6 +63,27 @@ const Register = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
               />
+            </div>
+
+            <div className="flex items-start">
+              <div className="flex items-center h-5">
+                <input
+                  id="privacy-policy"
+                  type="checkbox"
+                  required
+                  className="w-4 h-4 bg-dark-100 border-dark-100 rounded focus:ring-primary text-primary accent-primary"
+                  checked={acceptPolicy}
+                  onChange={(e) => setAcceptPolicy(e.target.checked)}
+                />
+              </div>
+              <div className="ml-3 text-sm">
+                <label htmlFor="privacy-policy" className="font-medium text-gray-300">
+                  I have read and agree to the{' '}
+                  <Link to="/privacy-policy" className="text-primary hover:underline" target="_blank">Privacy Policy</Link>{' '}
+                  and{' '}
+                  <Link to="/terms" className="text-primary hover:underline" target="_blank">Terms of Service</Link>.
+                </label>
+              </div>
             </div>
 
             <button
