@@ -19,6 +19,7 @@ const GetStartedWizard = () => {
   const [betaCode, setBetaCode] = useState('');
   const [verificationSuccess, setVerificationSuccess] = useState(false);
   const [isBetaRegistrationClosed, setIsBetaRegistrationClosed] = useState(false);
+  const [showYapeModal, setShowYapeModal] = useState(false);
   const [prices, setPrices] = useState({
     standard: { amount: 29, currency: 'USD' },
     vip: { amount: 99, currency: 'USD' }
@@ -454,94 +455,155 @@ const GetStartedWizard = () => {
 
         {/* CONTENIDO DE PASO 4: MURO DE AUTORIZACIÓN BETA */}
         {step === 4 && (
-          <div className="space-y-8 animate-in fade-in duration-300">
+          <div className="space-y-8 animate-in fade-in duration-300 w-full max-w-4xl mx-auto">
             <div className="space-y-2 text-center">
               <span className="text-[10px] font-black tracking-widest uppercase text-primary font-mono bg-primary/10 px-3 py-1.5 rounded-full border border-primary/20">
                 ✨ PROGRAMA DE PIONEROS • REDWIRE
               </span>
-              <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight uppercase font-mono mt-2">AUTORIZACIÓN DE ENTORNO BETA</h2>
-              <p className="text-xs text-gray-400 font-semibold max-w-md mx-auto">
-                RedWire System se encuentra en Fase Beta Cerrada. Para dar permiso de autorización y activar tu Plan Standard de Pionero de por vida gratis, ingresa tu Código de Verificación.
+              <h2 className="text-3xl md:text-4xl font-black text-white tracking-tight uppercase font-mono mt-2">DESBLOQUEA TU WORKSPACE</h2>
+              <p className="text-xs text-gray-400 font-semibold max-w-lg mx-auto">
+                Tu cuenta ha sido creada. Para comenzar a automatizar con RedWire System, selecciona cómo deseas ingresar.
               </p>
             </div>
 
-            <div className="max-w-md mx-auto bg-dark-200 border border-white/5 rounded-3xl p-8 shadow-2xl relative overflow-hidden">
-              {/* Resplandor decorativo */}
-              <div className="absolute -top-12 -right-12 w-32 h-32 bg-primary/5 rounded-full blur-3xl"></div>
-
-              {verificationSuccess ? (
-                <div className="text-center py-6 space-y-4 animate-in zoom-in duration-300">
-                  <div className="w-16 h-16 bg-green-500/10 border border-green-500/20 text-green-500 text-3xl flex items-center justify-center rounded-full mx-auto animate-bounce">
-                    🎉
-                  </div>
-                  <h3 className="text-lg font-black text-white uppercase font-mono">¡ACCESO AUTORIZADO!</h3>
-                  <p className="text-xs text-gray-400 font-semibold">
-                    Tu código ha sido validado con éxito. Se ha activado tu Plan Standard de Pionero. Redireccionando a tu espacio de trabajo...
-                  </p>
-                  <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mt-4"></div>
+            {verificationSuccess ? (
+              <div className="max-w-md mx-auto bg-dark-200 border border-green-500/20 rounded-3xl p-8 shadow-2xl relative overflow-hidden text-center animate-in zoom-in duration-300">
+                <div className="w-16 h-16 bg-green-500/10 border border-green-500/20 text-green-500 text-3xl flex items-center justify-center rounded-full mx-auto animate-bounce mb-6">
+                  🎉
                 </div>
-              ) : (
-                <form onSubmit={handleVerifyCode} className="space-y-6">
-                  <div className="space-y-2.5 text-center">
-                    <label className="block text-[10px] text-gray-400 font-mono uppercase tracking-wider font-bold">Código de Acceso de 12 Caracteres</label>
+                <h3 className="text-xl font-black text-white uppercase font-mono">¡ACCESO AUTORIZADO!</h3>
+                <p className="text-xs text-gray-400 font-semibold mt-4">
+                  Tu plan ha sido activado exitosamente. Redireccionando a tu espacio de trabajo...
+                </p>
+                <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mt-6"></div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
+                {/* Opción 1: Tengo Código */}
+                <div className="bg-dark-200 border border-white/5 rounded-3xl p-8 shadow-2xl relative overflow-hidden flex flex-col justify-between group hover:border-white/10 transition-colors">
+                  <div className="space-y-4">
+                    <div className="w-12 h-12 bg-primary/10 text-primary flex items-center justify-center rounded-xl text-2xl mb-6 shadow-inner">🔑</div>
+                    <h3 className="text-xl font-black text-white uppercase font-mono tracking-tight">Tengo un Código</h3>
+                    <p className="text-xs text-gray-400 font-semibold leading-relaxed">
+                      Si el equipo de EddamCore ya te proporcionó un código de invitación pionero para acceder, ingrésalo aquí.
+                    </p>
+                  </div>
+                  
+                  <form onSubmit={handleVerifyCode} className="space-y-4 mt-8">
                     <input 
                       type="text"
                       required
                       placeholder="RW-BETA-XXXX"
                       value={betaCode}
                       onChange={(e) => setBetaCode(e.target.value.toUpperCase())}
-                      className="w-full bg-dark-100 border border-white/5 focus:border-primary rounded-xl px-4 py-3.5 text-base text-white text-center font-mono focus:outline-none transition-all tracking-widest placeholder:opacity-40"
+                      className="w-full bg-dark-100 border border-white/5 focus:border-primary rounded-xl px-4 py-3.5 text-sm text-white text-center font-mono focus:outline-none transition-all tracking-widest placeholder:opacity-30"
                       disabled={isLoading}
                       maxLength={12}
                     />
-                  </div>
-
-                  {error && (
-                    <div className="text-xs text-red-500 bg-red-500/10 p-3.5 rounded-xl border border-red-500/20 text-center font-bold font-mono">
-                      {error}
-                    </div>
-                  )}
-
-                  <div className="space-y-4 pt-2">
+                    {error && <div className="text-[10px] text-red-500 font-bold bg-red-500/10 p-2 rounded-lg text-center">{error}</div>}
                     <button
                       type="submit"
                       disabled={isLoading || !betaCode.trim()}
-                      className="w-full py-4 bg-primary hover:bg-primary-dark text-white font-black uppercase tracking-widest text-xs rounded-xl transition-all shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2"
+                      className="w-full py-3.5 bg-dark-100 hover:bg-dark-200 border border-primary/20 hover:border-primary/50 text-primary font-black uppercase tracking-widest text-xs rounded-xl transition-all flex justify-center items-center gap-2"
                     >
-                      {isLoading ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          <span>Validando Código...</span>
-                        </>
-                      ) : (
-                        <span>Autorizar y Activar Workspace 🚀</span>
-                      )}
+                      {isLoading ? <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin"></div> : 'Autorizar Código'}
                     </button>
+                  </form>
+                </div>
 
-                    <div className="relative flex py-2 items-center">
-                      <div className="flex-grow border-t border-white/5"></div>
-                      <span className="flex-shrink mx-4 text-[9px] text-gray-500 font-mono uppercase font-bold">¿No tienes código?</span>
-                      <div className="flex-grow border-t border-white/5"></div>
-                    </div>
-
-                    <a
-                      href={`https://wa.me/51983032706?text=${encodeURIComponent(
-                        `Hola EddamCore, acabo de registrarme en RedWire System con el correo ${user?.email || email || ''} y me gustaría solicitar mi código de verificación de pionero para activar mi cuenta.`
-                      )}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full py-3.5 bg-green-500/10 hover:bg-green-500/20 border border-green-500/20 hover:border-green-500/40 text-green-500 font-mono uppercase tracking-wider text-[10px] rounded-xl transition-all font-black flex items-center justify-center gap-2"
-                    >
-                      💬 Solicitar Código de Pionero por WhatsApp
-                    </a>
+                {/* Opción 2: Saltar Fila / Comprar Plan */}
+                <div className="bg-gradient-to-b from-dark-200 to-dark-200 border border-amber-500/20 rounded-3xl p-8 shadow-2xl relative overflow-hidden flex flex-col justify-between">
+                  <div className="absolute top-0 right-0 bg-amber-500 text-dark-300 text-[9px] font-black uppercase tracking-widest px-4 py-1.5 rounded-bl-xl shadow-md">
+                    Recomendado
                   </div>
-                </form>
-              )}
-            </div>
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-amber-500/5 blur-3xl rounded-full pointer-events-none"></div>
 
-            <p className="text-center text-[9px] text-gray-600 font-mono font-bold uppercase tracking-wider">
-              EddamCore © RedWire System Pioneers Program • Beta Limitada Privada
-            </p>
+                  <div className="space-y-4 relative z-10">
+                    <div className="w-12 h-12 bg-amber-500/20 text-amber-500 flex items-center justify-center rounded-xl text-2xl mb-6 shadow-inner">⚡</div>
+                    <h3 className="text-xl font-black text-white uppercase font-mono tracking-tight">Saltar la fila</h3>
+                    <p className="text-xs text-gray-300 font-semibold leading-relaxed">
+                      No esperes por un código gratuito. Adquiere tu plan directamente por Yape y obtén acceso inmediato a tu workspace.
+                    </p>
+                    
+                    <div className="bg-dark-300/80 rounded-xl p-4 border border-white/5 mt-6 mb-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Plan Configurado</span>
+                        <span className="text-[11px] font-black text-white uppercase bg-white/10 px-2 py-0.5 rounded">{selectedPlan}</span>
+                      </div>
+                      <div className="flex justify-between items-center mt-3">
+                        <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Inversión</span>
+                        <span className="text-xl font-black text-amber-500 font-mono">
+                          {selectedPlan === 'vip' ? `$${prices.vip.amount}` : `$${prices.standard.amount}`} USD
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <button
+                    onClick={() => setShowYapeModal(true)}
+                    className="w-full py-4 bg-amber-500 hover:bg-amber-400 text-dark-300 font-black uppercase tracking-widest text-xs rounded-xl transition-all shadow-[0_0_20px_rgba(245,158,11,0.2)] hover:shadow-[0_0_30px_rgba(245,158,11,0.4)] hover:scale-[1.02] mt-6 relative z-10"
+                  >
+                    Pagar y Activar Ahora 🚀
+                  </button>
+                </div>
+              </div>
+            )}
+            
+            {!verificationSuccess && (
+              <p className="text-center text-[9px] text-gray-600 font-mono font-bold uppercase tracking-wider mt-8">
+                EddamCore © RedWire System Pioneers Program • Beta Limitada Privada
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* MODAL YAPE */}
+        {showYapeModal && (
+          <div className="fixed inset-0 bg-dark-300/90 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in">
+            <div className="bg-dark-200 border border-white/10 rounded-3xl p-8 max-w-sm w-full relative shadow-2xl animate-in zoom-in-95 duration-200">
+              <button 
+                onClick={() => setShowYapeModal(false)} 
+                className="absolute top-5 right-5 w-8 h-8 flex items-center justify-center bg-dark-100 hover:bg-dark-300 text-gray-400 hover:text-white rounded-full transition-colors"
+              >
+                ✕
+              </button>
+              
+              <div className="text-center space-y-5">
+                <div className="w-16 h-16 bg-[#7408B1] text-white rounded-2xl flex items-center justify-center mx-auto text-3xl font-black shadow-lg shadow-[#7408B1]/30">
+                  Y
+                </div>
+                <div>
+                  <h3 className="text-xl font-black text-white uppercase font-mono tracking-tight">Pago vía Yape</h3>
+                  <p className="text-xs text-gray-400 mt-2 font-semibold px-2">Escanea el código QR y envíanos el comprobante para habilitar tu Plan {selectedPlan.toUpperCase()}.</p>
+                </div>
+                
+                <div className="bg-white p-2 rounded-2xl mx-auto w-48 h-48 flex items-center justify-center border-4 border-[#7408B1]/20 shadow-inner">
+                  <div className="text-gray-400 text-[10px] font-bold text-center border-2 border-dashed border-gray-200 w-full h-full rounded-xl flex flex-col items-center justify-center">
+                    <span className="text-2xl mb-2">📱</span>
+                    Coloca tu QR de Yape aquí
+                  </div>
+                </div>
+
+                <div className="bg-dark-300 p-4 rounded-xl border border-white/5">
+                  <div className="text-[10px] text-gray-500 uppercase tracking-widest font-black">Monto Total</div>
+                  <div className="text-3xl font-black text-[#7408B1] font-mono mt-1">
+                    {selectedPlan === 'vip' ? `$${prices.vip.amount}` : `$${prices.standard.amount}`} USD
+                  </div>
+                  <div className="text-[9px] text-gray-400 mt-2 uppercase font-bold">* Convierte a Soles (PEN) según el tipo de cambio del día</div>
+                </div>
+
+                <a
+                  href={`https://wa.me/51983032706?text=${encodeURIComponent(
+                    `Hola EddamCore, acabo de pagar por el Plan ${selectedPlan.toUpperCase()} de RedWire. Adjunto mi comprobante para recibir mi código de acceso. Correo: ${user?.email || email || ''}`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-4 bg-[#7408B1] hover:bg-[#5a068a] text-white font-black uppercase tracking-widest text-[11px] rounded-xl transition-all shadow-lg hover:shadow-[#7408B1]/30 hover:-translate-y-1 flex items-center justify-center gap-2 mt-6"
+                >
+                  💬 Enviar Comprobante a WhatsApp
+                </a>
+              </div>
+            </div>
           </div>
         )}
 

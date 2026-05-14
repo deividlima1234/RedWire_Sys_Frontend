@@ -24,6 +24,7 @@ const AdminUsers = () => {
   const [pendingUsers, setPendingUsers] = useState([]);
   const [betaLoading, setBetaLoading] = useState(false);
   const [manualEmail, setManualEmail] = useState('');
+  const [manualTargetTier, setManualTargetTier] = useState('STANDARD');
   const [isManualModalOpen, setIsManualModalOpen] = useState(false);
   const [copiedCode, setCopiedCode] = useState('');
   const [betaClosed, setBetaClosed] = useState(false);
@@ -163,9 +164,9 @@ const AdminUsers = () => {
   };
 
   // NUEVOS CONTROLADORES: Fase Beta & Pioneros
-  const handleGenerateCode = async (recipientEmail) => {
+  const handleGenerateCode = async (recipientEmail, targetTier = 'STANDARD') => {
     try {
-      const response = await api.post('/admin/beta-codes/generate', { recipientEmail });
+      const response = await api.post('/admin/beta-codes/generate', { recipientEmail, targetTier });
       const newCode = response.data;
       
       // Alerta con estilo y copia al portapapeles
@@ -196,8 +197,9 @@ const AdminUsers = () => {
   const handleCreateManualCode = async (e) => {
     e.preventDefault();
     if (!manualEmail.trim()) return;
-    await handleGenerateCode(manualEmail);
+    await handleGenerateCode(manualEmail, manualTargetTier);
     setManualEmail('');
+    setManualTargetTier('STANDARD');
     setIsManualModalOpen(false);
   };
 
@@ -788,6 +790,26 @@ const AdminUsers = () => {
                 <span className="text-[10px] text-gray-500 font-sans font-medium block mt-1 leading-relaxed">
                   ⚠️ El cliente deberá registrarse exactamente con este correo electrónico para que el sistema le permita canjear el código de autorización generado.
                 </span>
+              </div>
+
+              <div className="space-y-2 text-left">
+                <label className="block text-[10px] text-gray-400 font-mono uppercase tracking-wider font-black">Nivel de Plan a Otorgar</label>
+                <div className="grid grid-cols-2 gap-3">
+                  {['STANDARD', 'VIP'].map((tierOpt) => (
+                    <button
+                      key={tierOpt}
+                      type="button"
+                      onClick={() => setManualTargetTier(tierOpt)}
+                      className={`py-3 px-4 rounded-xl font-bold text-sm transition-all border ${
+                        manualTargetTier === tierOpt
+                          ? (tierOpt === 'VIP' ? 'border-amber-500 bg-amber-500/10 text-amber-500 shadow-lg shadow-amber-500/5' : 'border-primary bg-primary/10 text-primary shadow-lg shadow-primary/5')
+                          : 'border-dark-100 bg-dark-100/30 text-gray-400 hover:text-white'
+                      }`}
+                    >
+                      {tierOpt === 'VIP' ? 'VIP 💎' : 'STANDARD'}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
