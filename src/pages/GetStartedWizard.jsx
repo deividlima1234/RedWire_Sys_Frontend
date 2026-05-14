@@ -91,7 +91,12 @@ const GetStartedWizard = () => {
 
     try {
       // 1. Registrar Cuenta
-      await api.post('/auth/register', { email, password, acceptPrivacyPolicy: acceptPolicy });
+      await api.post('/auth/register', { 
+        email, 
+        password, 
+        acceptPrivacyPolicy: acceptPolicy,
+        intendedPlan: selectedPlan 
+      });
       
       // 2. Autologin transparente
       const loginResponse = await api.post('/auth/login', { email, password });
