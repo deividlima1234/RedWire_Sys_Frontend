@@ -594,19 +594,7 @@ const LandingPage = () => {
           {/* Plan VIP */}
           <div className="p-8 bg-dark-200 rounded-3xl border border-amber-500/30 shadow-[0_0_50px_rgba(245,158,11,0.05)] flex flex-col justify-between hover:border-amber-500/50 transition-all duration-300 relative overflow-hidden">
             
-            {/* Capa de Bloqueo Glassmorphism - En Desarrollo */}
-            <div className="absolute inset-0 z-10 backdrop-blur-md bg-dark-300/80 rounded-3xl p-6 flex flex-col justify-center items-center text-center border border-amber-500/20 shadow-2xl">
-              <span className="w-11 h-11 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500 text-lg mb-3 shadow-lg shadow-amber-500/5 animate-pulse">
-                🛠️
-              </span>
-              <span className="text-[9px] font-black tracking-widest text-amber-500 font-mono uppercase bg-amber-500/10 px-2.5 py-1 rounded border border-amber-500/20">
-                EN DESARROLLO ACTIVO
-              </span>
-              <h4 className="text-xs font-black text-white mt-2.5 uppercase tracking-tight font-mono">META CLOUD API OFICIAL</h4>
-              <p className="text-[10px] text-gray-400 font-bold mt-1.5 leading-relaxed max-w-[190px]">
-                El plan oficial 100% en la nube con API oficial se encuentra en fase de construcción y se liberará en las próximas semanas.
-              </p>
-            </div>
+
 
             <div className="absolute top-0 right-0 bg-amber-500 text-dark-300 text-[8px] font-black uppercase tracking-widest px-4 py-1.5 rounded-bl-xl font-mono">
               ⭐ RECOMENDADO

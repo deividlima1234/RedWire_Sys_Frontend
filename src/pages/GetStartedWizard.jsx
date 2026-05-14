@@ -259,7 +259,7 @@ const GetStartedWizard = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4">
               {plans.map((p) => {
                 const isSelected = selectedPlan === p.id;
-                const isDisabled = p.id === 'free' || p.id === 'vip';
+                const isDisabled = p.id === 'free';
                 return (
                   <div 
                     key={p.id}

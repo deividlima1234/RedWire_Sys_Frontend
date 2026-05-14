@@ -39,21 +39,10 @@ const PricingModal = ({ isOpen, onClose }) => {
 
   if (!isOpen) return null;
 
-  const handleUpgrade = async (newTier) => {
-    setLoading(true);
-    try {
-      const response = await api.post('/subscription/checkout-session', { tier: newTier });
-      if (response.data && response.data.url) {
-        window.location.href = response.data.url;
-      } else {
-        throw new Error("No se pudo obtener la URL de Stripe.");
-      }
-    } catch (error) {
-      console.error('Error upgrading plan via Stripe', error);
-      alert('Error al iniciar el proceso de pago con Stripe.');
-    } finally {
-      setLoading(false);
-    }
+  const handleUpgrade = (newTier) => {
+    const amount = newTier === 'VIP' ? prices.vip.amount : prices.standard.amount;
+    const text = `Hola EddamCore, deseo mejorar mi plan a ${newTier} de RedWire. Mi correo es: ${user?.email || ''}. ¿Podrían brindarme los datos de Yape para pagar los $${amount}?`;
+    window.open(`https://wa.me/51983032706?text=${encodeURIComponent(text)}`, '_blank');
   };
 
   return createPortal(
