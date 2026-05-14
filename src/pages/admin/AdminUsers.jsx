@@ -590,12 +590,22 @@ const AdminUsers = () => {
                           </button>
                         </div>
                       ) : (
-                        <button
-                          onClick={() => handleGenerateCode(pUser.email)}
-                          className="w-full py-3 bg-primary hover:bg-primary-dark text-white font-mono font-black uppercase text-[10px] rounded-xl transition-all shadow-md shadow-primary/10"
-                        >
-                          ⚡ Generar Código Exclusivo
-                        </button>
+                        <div className="flex gap-2 w-full">
+                          <button
+                            onClick={() => handleGenerateCode(pUser.email, 'STANDARD')}
+                            className="flex-1 py-3 bg-primary/20 hover:bg-primary/30 text-primary border border-primary/30 font-mono font-black uppercase text-[9px] rounded-xl transition-all"
+                            title="Generar código Standard"
+                          >
+                            ⚡ Standard
+                          </button>
+                          <button
+                            onClick={() => handleGenerateCode(pUser.email, 'VIP')}
+                            className="flex-1 py-3 bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-500 border border-yellow-500/30 font-mono font-black uppercase text-[9px] rounded-xl transition-all"
+                            title="Generar código VIP"
+                          >
+                            💎 VIP
+                          </button>
+                        </div>
                       )}
                     </div>
                   </div>

@@ -29,7 +29,7 @@ const GetStartedWizard = () => {
   // Cargar el plan de la URL si viene configurado y consultar precios reales
   useEffect(() => {
     const planParam = searchParams.get('plan');
-    if (planParam && ['standard'].includes(planParam.toLowerCase())) {
+    if (planParam && ['free', 'standard', 'vip'].includes(planParam.toLowerCase())) {
       setSelectedPlan(planParam.toLowerCase());
     } else {
       setSelectedPlan('standard');
@@ -531,27 +531,49 @@ const GetStartedWizard = () => {
                 </div>
 
                 {/* Opción 2: Saltar Fila / Comprar Plan */}
-                <div className="bg-gradient-to-b from-dark-200 to-dark-200 border border-amber-500/20 rounded-3xl p-8 shadow-2xl relative overflow-hidden flex flex-col justify-between">
-                  <div className="absolute top-0 right-0 bg-amber-500 text-dark-300 text-[9px] font-black uppercase tracking-widest px-4 py-1.5 rounded-bl-xl shadow-md">
-                    Recomendado
+                <div className={`border rounded-3xl p-8 shadow-2xl relative overflow-hidden flex flex-col justify-between transition-all ${
+                  selectedPlan === 'vip' 
+                    ? 'bg-gradient-to-b from-dark-200 to-dark-200 border-yellow-500/30 hover:border-yellow-500/50' 
+                    : 'bg-gradient-to-b from-dark-200 to-dark-200 border-amber-500/20 hover:border-amber-500/40'
+                }`}>
+                  <div className={`absolute top-0 right-0 text-dark-300 text-[9px] font-black uppercase tracking-widest px-4 py-1.5 rounded-bl-xl shadow-md ${
+                    selectedPlan === 'vip' ? 'bg-yellow-500' : 'bg-amber-500'
+                  }`}>
+                    {selectedPlan === 'vip' ? 'Acceso Prioritario' : 'Recomendado'}
                   </div>
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-amber-500/5 blur-3xl rounded-full pointer-events-none"></div>
+                  <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full blur-3xl rounded-full pointer-events-none ${
+                    selectedPlan === 'vip' ? 'bg-yellow-500/10' : 'bg-amber-500/5'
+                  }`}></div>
 
                   <div className="space-y-4 relative z-10">
-                    <div className="w-12 h-12 bg-amber-500/20 text-amber-500 flex items-center justify-center rounded-xl text-2xl mb-6 shadow-inner">⚡</div>
-                    <h3 className="text-xl font-black text-white uppercase font-mono tracking-tight">Saltar la fila</h3>
+                    <div className={`w-12 h-12 flex items-center justify-center rounded-xl text-2xl mb-6 shadow-inner ${
+                      selectedPlan === 'vip' ? 'bg-yellow-500/20 text-yellow-500' : 'bg-amber-500/20 text-amber-500'
+                    }`}>
+                      {selectedPlan === 'vip' ? '💎' : '⚡'}
+                    </div>
+                    <h3 className="text-xl font-black text-white uppercase font-mono tracking-tight">
+                      {selectedPlan === 'vip' ? 'Activar Infraestructura VIP' : 'Saltar la fila'}
+                    </h3>
                     <p className="text-xs text-gray-300 font-semibold leading-relaxed">
-                      No esperes por un código gratuito. Adquiere tu plan directamente por Yape y obtén acceso inmediato a tu workspace.
+                      {selectedPlan === 'vip' 
+                        ? 'Obtén integración directa con la API oficial de Meta Cloud y despliegue prioritario de tu bot empresarial.' 
+                        : 'No esperes por un código gratuito. Adquiere tu plan directamente y obtén acceso inmediato a tu workspace.'}
                     </p>
                     
                     <div className="bg-dark-300/80 rounded-xl p-4 border border-white/5 mt-6 mb-2">
                       <div className="flex justify-between items-center">
-                        <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Plan Configurado</span>
-                        <span className="text-[11px] font-black text-white uppercase bg-white/10 px-2 py-0.5 rounded">{selectedPlan}</span>
+                        <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Plan Seleccionado</span>
+                        <span className={`text-[11px] font-black uppercase px-2 py-0.5 rounded ${
+                          selectedPlan === 'vip' ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20' : 'bg-white/10 text-white'
+                        }`}>
+                          {selectedPlan}
+                        </span>
                       </div>
                       <div className="flex justify-between items-center mt-3">
                         <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Inversión</span>
-                        <span className="text-xl font-black text-amber-500 font-mono">
+                        <span className={`text-xl font-black font-mono ${
+                          selectedPlan === 'vip' ? 'text-yellow-500' : 'text-amber-500'
+                        }`}>
                           {selectedPlan === 'vip' ? `$${prices.vip.amount}` : `$${prices.standard.amount}`} USD
                         </span>
                       </div>
@@ -560,9 +582,13 @@ const GetStartedWizard = () => {
                   
                   <button
                     onClick={() => setShowYapeModal(true)}
-                    className="w-full py-4 bg-amber-500 hover:bg-amber-400 text-dark-300 font-black uppercase tracking-widest text-xs rounded-xl transition-all shadow-[0_0_20px_rgba(245,158,11,0.2)] hover:shadow-[0_0_30px_rgba(245,158,11,0.4)] hover:scale-[1.02] mt-6 relative z-10"
+                    className={`w-full py-4 text-dark-300 font-black uppercase tracking-widest text-xs rounded-xl transition-all hover:scale-[1.02] mt-6 relative z-10 ${
+                      selectedPlan === 'vip' 
+                        ? 'bg-yellow-500 hover:bg-yellow-400 shadow-[0_0_20px_rgba(234,179,8,0.2)] hover:shadow-[0_0_30px_rgba(234,179,8,0.4)]' 
+                        : 'bg-amber-500 hover:bg-amber-400 shadow-[0_0_20px_rgba(245,158,11,0.2)] hover:shadow-[0_0_30px_rgba(245,158,11,0.4)]'
+                    }`}
                   >
-                    Pagar y Activar Ahora 🚀
+                    Contactar Soporte y Activar 🚀
                   </button>
                 </div>
               </div>
