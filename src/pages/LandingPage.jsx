@@ -74,7 +74,7 @@ const LandingPage = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-dark-300 text-gray-200 selection:bg-primary selection:text-white font-sans overflow-x-hidden">
+    <div className="min-h-screen bg-dark-300 text-gray-200 selection:bg-primary selection:text-white font-sans overflow-x-hidden relative">
       {/* Círculos de Resplandor Neon de Fondo */}
       <div className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full bg-primary/5 blur-[120px] pointer-events-none"></div>
       <div className="absolute top-[30%] right-[-10%] w-[600px] h-[600px] rounded-full bg-primary/5 blur-[150px] pointer-events-none"></div>
