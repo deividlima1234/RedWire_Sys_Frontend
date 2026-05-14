@@ -116,7 +116,7 @@ const AdminPricing = () => {
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black text-white tracking-tight uppercase font-mono">GESTIÓN DE PRECIOS & PAGOS</h1>
+          <h1 className="text-3xl font-black text-white tracking-tight uppercase font-mono">GESTIÓN DE PRECIOS & PAGOS v2</h1>
           <p className="text-gray-400 mt-1 font-medium text-sm">Configura los costos de suscripción y los datos de recepción de Yape.</p>
         </div>
         <div className="flex items-center gap-3">
