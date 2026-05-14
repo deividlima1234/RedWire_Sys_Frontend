@@ -163,6 +163,20 @@ const AdminUsers = () => {
     }
   };
 
+  const handleDeleteUser = async (userId, userEmail) => {
+    if (!window.confirm(`⚠️ ¿Estás completamente seguro de ELIMINAR al usuario ${userEmail}?\n\nEsta acción es IRREVERSIBLE y borrará toda su cuenta, sus bots y todo acceso al sistema.`)) return;
+    
+    try {
+      await api.delete(`/admin/users/${userId}`);
+      // Actualizar lista
+      setUsers(users.filter(u => u.id !== userId));
+      alert('✅ Usuario eliminado correctamente del sistema.');
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      alert('Error en el servidor al intentar eliminar al usuario.');
+    }
+  };
+
   // NUEVOS CONTROLADORES: Fase Beta & Pioneros
   const handleGenerateCode = async (recipientEmail, targetTier = 'STANDARD') => {
     try {
@@ -403,12 +417,21 @@ const AdminUsers = () => {
                       <span className="text-xs text-gray-500">{new Date(user.createdAt).toLocaleDateString()}</span>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <button 
-                        onClick={() => handleManage(user)}
-                        className="text-[10px] font-bold text-primary hover:text-white bg-primary/5 hover:bg-primary border border-primary/20 hover:border-primary px-3 py-1.5 rounded-lg transition-all uppercase tracking-tighter"
-                      >
-                        Gestionar
-                      </button>
+                      <div className="flex items-center justify-end gap-2">
+                        <button 
+                          onClick={() => handleManage(user)}
+                          className="text-[10px] font-bold text-primary hover:text-white bg-primary/5 hover:bg-primary border border-primary/20 hover:border-primary px-3 py-1.5 rounded-lg transition-all uppercase tracking-tighter"
+                        >
+                          Gestionar
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteUser(user.id, user.email)}
+                          className="text-[10px] font-bold text-red-500 hover:text-white bg-red-500/5 hover:bg-red-500 border border-red-500/20 hover:border-red-500 px-3 py-1.5 rounded-lg transition-all uppercase tracking-tighter"
+                          title="Eliminar Cuenta"
+                        >
+                          Eliminar
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
