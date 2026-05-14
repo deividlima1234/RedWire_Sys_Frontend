@@ -14,6 +14,7 @@ const GetStartedWizard = () => {
   const [useCase, setUseCase] = useState('sales');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [acceptPolicy, setAcceptPolicy] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [betaCode, setBetaCode] = useState('');
@@ -90,7 +91,7 @@ const GetStartedWizard = () => {
 
     try {
       // 1. Registrar Cuenta
-      await api.post('/auth/register', { email, password, acceptPrivacyPolicy: true });
+      await api.post('/auth/register', { email, password, acceptPrivacyPolicy: acceptPolicy });
       
       // 2. Autologin transparente
       const loginResponse = await api.post('/auth/login', { email, password });
@@ -424,6 +425,24 @@ const GetStartedWizard = () => {
                   className="w-full bg-dark-100 border border-dark-100 focus:border-primary rounded-xl px-4 py-3 text-sm text-white focus:outline-none transition-all font-mono"
                   disabled={isLoading}
                 />
+              </div>
+
+              <div className="flex items-start py-2">
+                <div className="flex items-center h-5">
+                  <input
+                    id="privacy-policy"
+                    type="checkbox"
+                    required
+                    className="w-4 h-4 bg-dark-100 border-dark-100 rounded focus:ring-primary text-primary accent-primary"
+                    checked={acceptPolicy}
+                    onChange={(e) => setAcceptPolicy(e.target.checked)}
+                  />
+                </div>
+                <div className="ml-3 text-[10px] text-gray-500 text-left">
+                  <label htmlFor="privacy-policy" className="font-medium cursor-pointer">
+                    He leído y acepto explícitamente los <Link to="/terms" target="_blank" className="text-primary hover:underline">Términos de Servicio</Link> y <Link to="/privacy-policy" target="_blank" className="text-primary hover:underline">Políticas de Privacidad</Link>.
+                  </label>
+                </div>
               </div>
 
               {error && (
