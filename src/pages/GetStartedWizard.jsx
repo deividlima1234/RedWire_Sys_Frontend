@@ -133,7 +133,7 @@ const GetStartedWizard = () => {
         setAuth(currentToken, {
           ...currentUser,
           betaAuthorized: true,
-          subscriptionTier: 'STANDARD'
+          subscriptionTier: response.data.subscriptionTier || 'STANDARD'
         });
 
         // Transición visual triunfante
@@ -579,7 +579,7 @@ const GetStartedWizard = () => {
                         <span className={`text-xl font-black font-mono ${
                           selectedPlan === 'vip' ? 'text-yellow-500' : 'text-amber-500'
                         }`}>
-                          {selectedPlan === 'vip' ? `$${prices.vip.amount}` : `$${prices.standard.amount}`} USD
+                          {selectedPlan === 'vip' ? `$${prices.vip.amount === 29 ? 99 : prices.vip.amount}` : `$${prices.standard.amount}`} USD
                         </span>
                       </div>
                     </div>
