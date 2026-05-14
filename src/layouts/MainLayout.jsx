@@ -243,7 +243,23 @@ const MainLayout = () => {
                       {(!isSidebarCollapsed || window.innerWidth < 768) && <span className="animate-fade-in">Usuarios</span>}
                     </NavLink>
                   </li>
+                  <li>
+                    <NavLink 
+                      to="/admin/pricing" 
+                      onClick={() => setIsMobileOpen(false)}
+                      className={({ isActive }) => `flex items-center rounded-lg transition-all ${
+                        isSidebarCollapsed ? 'md:p-3 p-3 md:justify-center' : 'px-4 py-3'
+                      } ${
+                        isActive ? 'bg-amber-500/10 text-amber-400 border-l-4 border-amber-500' : 'text-gray-400 hover:bg-dark-100 hover:text-white'
+                      }`}
+                      title="Gestión de Precios"
+                    >
+                      <svg className={`w-5 h-5 ${isSidebarCollapsed ? 'md:mr-0 mr-3' : 'mr-3'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      {(!isSidebarCollapsed || window.innerWidth < 768) && <span className="animate-fade-in">Precios & Yape</span>}
+                    </NavLink>
+                  </li>
                 </ul>
+
               </div>
             )}
 

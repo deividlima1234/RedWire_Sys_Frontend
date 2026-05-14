@@ -23,7 +23,8 @@ const GetStartedWizard = () => {
   const [showYapeModal, setShowYapeModal] = useState(false);
   const [prices, setPrices] = useState({
     standard: { amount: 29, currency: 'USD' },
-    vip: { amount: 99, currency: 'USD' }
+    vip: { amount: 99, currency: 'USD' },
+    yape: { phone: '983032706', name: 'EddamCore (RedWire)', qrData: '' }
   });
 
   // Cargar el plan de la URL si viene configurado y consultar precios reales
@@ -62,6 +63,11 @@ const GetStartedWizard = () => {
             vip: {
               amount: response.data.vip?.amount ?? 99,
               currency: response.data.vip?.currency ?? 'USD'
+            },
+            yape: {
+              phone: response.data.yape?.phone ?? '983032706',
+              name: response.data.yape?.name ?? 'EddamCore (RedWire)',
+              qrData: response.data.yape?.qrData ?? ''
             }
           });
         }
@@ -627,23 +633,33 @@ const GetStartedWizard = () => {
                   <p className="text-xs text-gray-400 mt-2 font-semibold px-2">Escanea el código QR y envíanos el comprobante para habilitar tu Plan {selectedPlan.toUpperCase()}.</p>
                 </div>
                 
-                <div className="bg-white p-2 rounded-2xl mx-auto w-48 h-48 flex items-center justify-center border-4 border-[#7408B1]/20 shadow-inner">
-                  <div className="text-gray-400 text-[10px] font-bold text-center border-2 border-dashed border-gray-200 w-full h-full rounded-xl flex flex-col items-center justify-center">
-                    <span className="text-2xl mb-2">📱</span>
-                    Coloca tu QR de Yape aquí
-                  </div>
+                <div className="bg-white p-2 rounded-2xl mx-auto w-48 h-48 flex items-center justify-center border-4 border-[#7408B1]/20 shadow-inner overflow-hidden">
+                  {prices.yape.qrData ? (
+                    <img src={prices.yape.qrData} alt="QR Yape" className="w-full h-full object-contain" />
+                  ) : (
+                    <div className="text-gray-400 text-[10px] font-bold text-center border-2 border-dashed border-gray-200 w-full h-full rounded-xl flex flex-col items-center justify-center">
+                      <span className="text-2xl mb-2">📱</span>
+                      QR no configurado
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-1">
+                  <div className="text-[10px] text-gray-500 uppercase tracking-widest font-black">Número de Recepción</div>
+                  <div className="text-sm font-black text-white font-mono">{prices.yape.phone}</div>
+                  <div className="text-[9px] text-gray-500 font-bold truncate">{prices.yape.name}</div>
                 </div>
 
                 <div className="bg-dark-300 p-4 rounded-xl border border-white/5">
                   <div className="text-[10px] text-gray-500 uppercase tracking-widest font-black">Monto Total</div>
                   <div className="text-3xl font-black text-[#7408B1] font-mono mt-1">
-                    {selectedPlan === 'vip' ? `$${prices.vip.amount === 29 ? 99 : prices.vip.amount}` : `$${prices.standard.amount}`} USD
+                    {selectedPlan === 'vip' ? `$${prices.vip.amount}` : `$${prices.standard.amount}`} USD
                   </div>
                   <div className="text-[9px] text-gray-400 mt-2 uppercase font-bold">* Convierte a Soles (PEN) según el tipo de cambio del día</div>
                 </div>
 
                 <a
-                  href={`https://wa.me/51983032706?text=${encodeURIComponent(
+                  href={`https://wa.me/${prices.yape.phone.replace(/\s+/g, '')}?text=${encodeURIComponent(
                     `Hola EddamCore, acabo de pagar por el Plan ${selectedPlan.toUpperCase()} de RedWire. Adjunto mi comprobante para recibir mi código de acceso. Correo: ${user?.email || email || ''}`
                   )}`}
                   target="_blank"

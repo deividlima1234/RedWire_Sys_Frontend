@@ -8,7 +8,8 @@ const PricingModal = ({ isOpen, onClose }) => {
   const [loading, setLoading] = React.useState(false);
   const [prices, setPrices] = React.useState({
     standard: { amount: 29, currency: 'USD' },
-    vip: { amount: 99, currency: 'USD' }
+    vip: { amount: 99, currency: 'USD' },
+    yape: { phone: '983032706' }
   });
 
   React.useEffect(() => {
@@ -26,6 +27,9 @@ const PricingModal = ({ isOpen, onClose }) => {
             vip: {
               amount: response.data.vip?.amount ?? 99,
               currency: response.data.vip?.currency ?? 'USD'
+            },
+            yape: {
+              phone: response.data.yape?.phone ?? '983032706'
             }
           });
         }
@@ -42,7 +46,7 @@ const PricingModal = ({ isOpen, onClose }) => {
   const handleUpgrade = (newTier) => {
     const amount = newTier === 'VIP' ? prices.vip.amount : prices.standard.amount;
     const text = `Hola EddamCore, deseo mejorar mi plan a ${newTier} de RedWire. Mi correo es: ${user?.email || ''}. ¿Podrían brindarme los datos de Yape para pagar los $${amount}?`;
-    window.open(`https://wa.me/51983032706?text=${encodeURIComponent(text)}`, '_blank');
+    window.open(`https://wa.me/${prices.yape.phone.replace(/\s+/g, '')}?text=${encodeURIComponent(text)}`, '_blank');
   };
 
   return createPortal(

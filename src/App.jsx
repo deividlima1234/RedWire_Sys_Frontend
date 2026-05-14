@@ -7,6 +7,7 @@ import MainLayout from './layouts/MainLayout';
 import Dashboard from './pages/Dashboard';
 import FlowBuilder from './features/flow-builder/FlowBuilder';
 import AdminUsers from './pages/admin/AdminUsers';
+import AdminPricing from './pages/admin/AdminPricing';
 import LiveMonitor from './pages/LiveMonitor';
 import LandingPage from './pages/LandingPage';
 import GetStartedWizard from './pages/GetStartedWizard';
@@ -58,6 +59,7 @@ function App() {
           <Route path="/bots" element={<Navigate to="/dashboard" replace />} />
           <Route path="/bot/:id/flow" element={<FlowBuilder />} />
           <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/pricing" element={<AdminPricing />} />
         </Route>
 
         {/* Fallback general de rutas */}
