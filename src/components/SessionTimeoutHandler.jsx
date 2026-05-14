@@ -44,7 +44,7 @@ const SessionTimeoutHandler = () => {
   const handleLogout = () => {
     clearIntervals();
     logout();
-    window.location.href = '/login';
+    window.location.href = '/';
   };
 
   const handleKeepWorking = async () => {

@@ -18,7 +18,7 @@ import TermsOfService from './pages/TermsOfService';
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, user } = useAuthStore();
   
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (!isAuthenticated) return <Navigate to="/" replace />;
   
   // Si está autenticado pero NO está autorizado en beta y NO es admin, redirigir al portal de autorización
   if (user && !user.betaAuthorized && user.role !== 'ROLE_ADMIN' && user.role !== 'ADMIN') {
