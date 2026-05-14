@@ -251,29 +251,47 @@ const AdminUsers = () => {
       </div>
 
       {/* Selector de Pestañas Premium */}
-      <div className="flex border-b border-white/5 gap-6 font-mono text-xs uppercase tracking-widest pb-px">
-        <button
-          onClick={() => setActiveTab('users')}
-          className={`pb-3.5 font-black transition-all relative ${
-            activeTab === 'users' ? 'text-primary' : 'text-gray-500 hover:text-white'
-          }`}
-        >
-          Clientes Registrados
-          {activeTab === 'users' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full"></div>}
-        </button>
-        <button
-          onClick={() => setActiveTab('beta')}
-          className={`pb-3.5 font-black transition-all relative flex items-center gap-2.5 ${
-            activeTab === 'beta' ? 'text-primary' : 'text-gray-500 hover:text-white'
-          }`}
-        >
-          Pioneros & Códigos Beta
+      <div className="flex border-b border-white/5 gap-6 font-mono text-xs uppercase tracking-widest pb-px items-center justify-between">
+        <div className="flex gap-6">
+          <button
+            onClick={() => {
+              setActiveTab('users');
+              fetchUsers();
+            }}
+            className={`pb-3.5 font-black transition-all relative ${
+              activeTab === 'users' ? 'text-primary' : 'text-gray-500 hover:text-white'
+            }`}
+          >
+            Clientes Registrados
+            {activeTab === 'users' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full"></div>}
+          </button>
+          <button
+            onClick={() => {
+              setActiveTab('beta');
+              fetchBetaData();
+            }}
+            className={`pb-3.5 font-black transition-all relative flex items-center gap-2.5 ${
+              activeTab === 'beta' ? 'text-primary' : 'text-gray-500 hover:text-white'
+            }`}
+          >
+            Pioneros & Códigos Beta
           {pendingUsers.length > 0 && (
             <span className="w-5 h-5 bg-primary text-[9px] font-black text-white flex items-center justify-center rounded-full animate-pulse border border-dark-300">
               {pendingUsers.length}
             </span>
           )}
           {activeTab === 'beta' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full"></div>}
+          </button>
+        </div>
+        <button
+          onClick={() => {
+            fetchUsers();
+            fetchBetaData();
+          }}
+          className="pb-3.5 text-[10px] text-gray-500 hover:text-white transition-colors flex items-center gap-1 font-bold"
+          title="Actualizar datos del servidor"
+        >
+          🔄 Actualizar Datos
         </button>
       </div>
 
