@@ -119,16 +119,27 @@ const AdminPricing = () => {
           <h1 className="text-3xl font-black text-white tracking-tight uppercase font-mono">GESTIÓN DE PRECIOS & PAGOS v2</h1>
           <p className="text-gray-400 mt-1 font-medium text-sm">Configura los costos de suscripción y los datos de recepción de Yape.</p>
         </div>
-        <div className="flex items-center gap-3">
-           {message.text && (
-             <div className={`px-4 py-2 rounded-lg text-xs font-bold animate-in fade-in zoom-in duration-300 ${
-               message.type === 'success' ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'
-             }`}>
-               {message.type === 'success' ? '✓' : '✗'} {message.text}
-             </div>
-           )}
-        </div>
       </div>
+
+      {/* Notificación Flotante (Toast) */}
+      {message.text && (
+        <div className={`fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl animate-in slide-in-from-bottom-8 duration-500 ${
+          message.type === 'success' 
+          ? 'bg-green-500 text-white' 
+          : 'bg-red-500 text-white'
+        }`}>
+          <span className="text-xl">{message.type === 'success' ? '🚀' : '⚠️'}</span>
+          <div className="flex flex-col">
+            <span className="font-black uppercase tracking-widest text-xs">
+              {message.type === 'success' ? 'Éxito' : 'Error'}
+            </span>
+            <span className="text-sm font-bold opacity-90">{message.text}</span>
+          </div>
+          <button onClick={() => setMessage({text: '', type: ''})} className="ml-4 opacity-50 hover:opacity-100 transition-opacity">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
+        </div>
+      )}
 
       <form onSubmit={handleSave} className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
