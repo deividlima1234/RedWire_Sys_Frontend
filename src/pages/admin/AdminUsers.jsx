@@ -37,6 +37,11 @@ const AdminUsers = () => {
   useEffect(() => {
     fetchUsers();
     fetchBetaData();
+    const interval = setInterval(() => {
+      fetchUsers();
+      fetchBetaData();
+    }, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   const fetchUsers = async () => {

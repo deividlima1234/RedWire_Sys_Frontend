@@ -637,7 +637,7 @@ const GetStartedWizard = () => {
                 <div className="bg-dark-300 p-4 rounded-xl border border-white/5">
                   <div className="text-[10px] text-gray-500 uppercase tracking-widest font-black">Monto Total</div>
                   <div className="text-3xl font-black text-[#7408B1] font-mono mt-1">
-                    {selectedPlan === 'vip' ? `$${prices.vip.amount}` : `$${prices.standard.amount}`} USD
+                    {selectedPlan === 'vip' ? `$${prices.vip.amount === 29 ? 99 : prices.vip.amount}` : `$${prices.standard.amount}`} USD
                   </div>
                   <div className="text-[9px] text-gray-400 mt-2 uppercase font-bold">* Convierte a Soles (PEN) según el tipo de cambio del día</div>
                 </div>
