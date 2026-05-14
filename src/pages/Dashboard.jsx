@@ -129,8 +129,11 @@ const Dashboard = () => {
       await api.post('/bots', { phoneNumber: newBotPhone });
       setNewBotPhone('');
       fetchBots();
+      await refreshUser(); // Actualizar estadísticas de uso
     } catch (error) {
       console.error("Error creating bot", error);
+      const errorMsg = error.response?.data || error.message || "Error al crear el bot";
+      alert(errorMsg);
     } finally {
       setCreating(false);
     }
@@ -234,6 +237,88 @@ const Dashboard = () => {
         >
           Enviar Feedback 💬
         </a>
+      </div>
+
+      {/* Panel de Estadísticas de Uso y Límites */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-100">
+        
+        {/* Card: Capacidad de Bots */}
+        <div className="bg-dark-200 border border-white/5 rounded-3xl p-6 shadow-xl relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+            <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+          </div>
+          <div className="flex flex-col h-full">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-[10px] font-black text-primary uppercase tracking-widest bg-primary/10 px-2.5 py-1 rounded-lg border border-primary/20">Capacidad Bots</span>
+            </div>
+            <div className="flex items-baseline gap-1">
+              <span className="text-4xl font-black font-mono">{bots.length}</span>
+              <span className="text-gray-500 font-bold text-lg">/ {user?.maxBots || 1}</span>
+            </div>
+            <div className="mt-4 w-full bg-dark-100 h-2 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-primary transition-all duration-1000" 
+                style={{ width: `${Math.min((bots.length / (user?.maxBots || 1)) * 100, 100)}%` }}
+              ></div>
+            </div>
+            <p className="text-[10px] text-gray-500 mt-4 font-bold uppercase tracking-tight">
+              {bots.length >= (user?.maxBots || 1) ? '⚠️ Límite alcanzado' : 'Instancias disponibles para tu plan'}
+            </p>
+          </div>
+        </div>
+
+        {/* Card: Consumo de Mensajes */}
+        <div className="bg-dark-200 border border-white/5 rounded-3xl p-6 shadow-xl relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+            <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h4l2 2 2-2z" /></svg>
+          </div>
+          <div className="flex flex-col h-full">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-[10px] font-black text-blue-400 uppercase tracking-widest bg-blue-400/10 px-2.5 py-1 rounded-lg border border-blue-400/20">Mensajes Enviados</span>
+            </div>
+            <div className="flex items-baseline gap-1">
+              <span className="text-4xl font-black font-mono">{user?.messagesSent || 0}</span>
+              <span className="text-gray-500 font-bold text-lg">/ {user?.messagesLimit === -1 ? '∞' : (user?.messagesLimit || 20)}</span>
+            </div>
+            <div className="mt-4 w-full bg-dark-100 h-2 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-blue-500 transition-all duration-1000" 
+                style={{ width: user?.messagesLimit === -1 ? '100%' : `${Math.min(((user?.messagesSent || 0) / (user?.messagesLimit || 20)) * 100, 100)}%` }}
+              ></div>
+            </div>
+            <p className="text-[10px] text-gray-500 mt-4 font-bold uppercase tracking-tight">
+              {user?.messagesLimit === -1 ? 'Consumo ilimitado activo' : 'Cuota mensual de tu suscripción'}
+            </p>
+          </div>
+        </div>
+
+        {/* Card: Estado del Plan / Trial */}
+        <div className="bg-dark-200 border border-white/5 rounded-3xl p-6 shadow-xl relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+            <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+          </div>
+          <div className="flex flex-col h-full">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="text-[10px] font-black text-purple-400 uppercase tracking-widest bg-purple-400/10 px-2.5 py-1 rounded-lg border border-purple-400/20">Vencimiento del Plan</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-2xl font-black text-white uppercase font-mono tracking-tighter">
+                {user?.trialExpiresAt ? 'Periodo Trial' : (user?.subscriptionTier || 'FREE')}
+              </span>
+              <span className="text-sm font-bold text-gray-500 mt-1">
+                {user?.trialExpiresAt 
+                  ? new Date(user.trialExpiresAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })
+                  : 'Suscripción Vitalicia'
+                }
+              </span>
+            </div>
+            <div className="mt-auto pt-6">
+               <button className="text-[9px] font-black uppercase tracking-widest text-primary border-b border-primary/30 hover:border-primary transition-all">
+                 Mejorar Suscripción →
+               </button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div className="flex justify-between items-center">
