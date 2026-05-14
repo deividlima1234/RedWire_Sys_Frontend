@@ -46,7 +46,8 @@ const AdminPricing = () => {
       showStatus('¡Configuración guardada con éxito!', 'success');
     } catch (error) {
       console.error('Error saving pricing settings:', error);
-      showStatus('Error al guardar los cambios.', 'error');
+      const errorMsg = error.response?.data?.details || error.response?.data?.message || 'Error al guardar los cambios.';
+      showStatus(errorMsg, 'error');
     } finally {
       setIsSaving(false);
     }
