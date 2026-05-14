@@ -100,7 +100,12 @@ const LiveMonitor = () => {
         
         <div className="flex-1 overflow-y-auto">
           {conversations.length === 0 ? (
-            <div className="p-10 text-center text-gray-500 text-xs font-semibold uppercase tracking-widest">Esperando mensajes...</div>
+            <div className="flex-1 flex flex-col items-center justify-center p-10 opacity-40">
+              <div className="w-12 h-12 rounded-full border-2 border-dashed border-gray-600 flex items-center justify-center mb-4">
+                 <span className="text-gray-600 text-lg">💤</span>
+              </div>
+              <p className="text-[10px] text-gray-500 font-black uppercase tracking-[0.2em] text-center">Sin actividad reciente</p>
+            </div>
           ) : conversations.map(conv => {
             let lastText = conv.lastMessage;
             if (lastText && lastText.includes('||btn:')) {
@@ -320,9 +325,41 @@ const LiveMonitor = () => {
             </div>
           </>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center text-gray-500 p-6 text-center">
-            <svg className="w-16 h-16 mb-4 opacity-10 text-primary animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
-            <p className="text-xs font-black uppercase tracking-widest text-gray-600">Selecciona una conversación para monitorear en vivo</p>
+          <div className="flex-1 flex flex-col items-center justify-center p-8 text-center relative overflow-hidden bg-dark-300/20">
+            {/* Elementos Decorativos de Fondo */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-primary/5 rounded-full blur-3xl animate-pulse"></div>
+            
+            <div className="relative z-10 flex flex-col items-center max-w-sm">
+              <div className="w-20 h-20 rounded-3xl bg-dark-100 border border-white/5 flex items-center justify-center mb-8 shadow-2xl rotate-3 group-hover:rotate-0 transition-transform duration-500">
+                <svg className="w-10 h-10 text-primary/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
+              </div>
+              
+              <h3 className="text-xl font-black text-white uppercase tracking-tighter italic mb-3">
+                CENTRO DE <span className="text-primary">OPERACIONES</span>
+              </h3>
+              
+              <div className="flex items-center gap-2 mb-6">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-ping"></span>
+                <span className="text-[10px] font-black text-green-500/80 uppercase tracking-widest font-mono">En espera de actividad en vivo...</span>
+              </div>
+              
+              <p className="text-xs text-gray-500 font-bold leading-relaxed uppercase tracking-tight">
+                Selecciona una conversación del panel izquierdo para visualizar la interacción del bot en tiempo real.
+              </p>
+
+              <div className="mt-10 grid grid-cols-2 gap-4 w-full">
+                <div className="p-4 bg-dark-100/50 border border-white/5 rounded-2xl flex flex-col items-center">
+                  <span className="text-[10px] text-primary font-black uppercase mb-1">Privacidad</span>
+                  <p className="text-[9px] text-gray-600 font-bold uppercase leading-tight">Monitoreo Seguro SSL</p>
+                </div>
+                <div className="p-4 bg-dark-100/50 border border-white/5 rounded-2xl flex flex-col items-center">
+                  <span className="text-[10px] text-blue-400 font-black uppercase mb-1">Velocidad</span>
+                  <p className="text-[9px] text-gray-600 font-bold uppercase leading-tight">Sync en Tiempo Real</p>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>
