@@ -61,7 +61,7 @@ const LandingPage = () => {
     },
     {
       q: "¿Hay algún límite de mensajes en los planes de pago?",
-      a: "No. Tanto el Plan Standard como el Plan VIP disfrutan de mensajería saliente y entrante totalmente ilimitada. Solo el Plan Free tiene un límite mensual estricto de 50 mensajes de prueba."
+      a: "No. Tanto el Plan Standard como el Plan VIP disfrutan de mensajería saliente y entrante totalmente ilimitada. El Plan Free es una versión de prueba de 15 días con un límite de entre 20 y 50 mensajes para testear la plataforma."
     },
     {
       q: "¿Puedo cambiar de plan o cancelar en cualquier momento?",
@@ -84,7 +84,7 @@ const LandingPage = () => {
       <header className="sticky top-0 z-50 bg-dark-300/80 backdrop-blur-md border-b border-white/5 transition-all">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center font-black text-white text-base tracking-tighter shadow-lg shadow-primary/20">RW</span>
+            <img src="/redwire-favicon.png" alt="RedWire Logo" className="w-9 h-9 rounded-lg shadow-lg shadow-primary/20" />
             <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-3">
               <span className="text-xl font-black text-white tracking-tighter uppercase font-mono">
                 RedWire<span className="text-primary">Sys</span>
@@ -474,14 +474,14 @@ const LandingPage = () => {
 
               <div className="flex items-baseline gap-1.5 py-4 border-y border-white/5">
                 <span className="text-3xl font-black text-white uppercase tracking-tight font-mono">$0 USD</span>
-                <span className="text-[10px] text-gray-500 font-mono uppercase font-black">/ por siempre</span>
+                <span className="text-[10px] text-gray-500 font-mono uppercase font-black">/ 15 días de prueba</span>
               </div>
 
               <div className="space-y-4">
                 <span className="text-[9px] text-green-500 font-mono uppercase font-black tracking-wider block">✓ Ventajas (PROS):</span>
                 <ul className="text-xs text-gray-300 space-y-2.5 font-bold">
                   <li className="flex items-center gap-2.5">
-                    <span className="text-green-500">✔</span> 1 Bot activo de WhatsApp
+                    <span className="text-green-500">✔</span> 1 Bot activo (Prueba 15 días)
                   </li>
                   <li className="flex items-center gap-2.5">
                     <span className="text-green-500">✔</span> Constructor de flujos completo
@@ -494,7 +494,7 @@ const LandingPage = () => {
                 <span className="text-[9px] text-red-500 font-mono uppercase font-black tracking-wider block pt-2">❌ Restricciones (CONS):</span>
                 <ul className="text-xs text-gray-400 space-y-2.5 font-bold">
                   <li className="flex items-center gap-2.5">
-                    <span className="text-red-500">✘</span> Límite estricto de <strong>50 mensajes/mes</strong>
+                    <span className="text-red-500">✘</span> Límite de <strong>20-50 mensajes</strong> totales
                   </li>
                   <li className="flex items-center gap-2.5">
                     <span className="text-red-500">✘</span> Conexión por Baileys QR únicamente
@@ -555,7 +555,10 @@ const LandingPage = () => {
                     <span className="text-green-500">✔</span> <strong>Mensajes Ilimitados</strong>
                   </li>
                   <li className="flex items-center gap-2.5">
-                    <span className="text-green-500">✔</span> Hasta 3 Bots activos en paralelo
+                    <span className="text-green-500">✔</span> 1 Bot activo (Ilimitado)
+                  </li>
+                  <li className="flex items-center gap-2.5">
+                    <span className="text-green-500">✔</span> Bots adicionales con 50% de descuento
                   </li>
                   <li className="flex items-center gap-2.5">
                     <span className="text-green-500">✔</span> Constructor de flujos multimedia
@@ -622,7 +625,10 @@ const LandingPage = () => {
                     <span className="text-amber-500">✔</span> <strong>100% en la Nube</strong> (0 dependencia de celular)
                   </li>
                   <li className="flex items-center gap-2.5">
-                    <span className="text-green-500">✔</span> Hasta 10 Bots activos en paralelo
+                    <span className="text-green-500">✔</span> 2 Bots activos (Ilimitados)
+                  </li>
+                  <li className="flex items-center gap-2.5">
+                    <span className="text-green-500">✔</span> Bots adicionales con 50% de descuento
                   </li>
                   <li className="flex items-center gap-2.5">
                     <span className="text-green-500">✔</span> Monitor avanzado con soporte multi-agente
@@ -692,7 +698,7 @@ const LandingPage = () => {
       <footer className="border-t border-white/5 bg-dark-300/50 py-12">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <span className="w-6 h-6 rounded bg-primary flex items-center justify-center font-black text-white text-xs tracking-tighter">RW</span>
+            <img src="/redwire-favicon.png" alt="RedWire Logo" className="w-8 h-8 rounded shadow-lg shadow-primary/20" />
             <div className="flex flex-col items-start leading-tight">
               <span className="text-sm font-black text-white uppercase tracking-wider font-mono">
                 RedWire<span className="text-primary">Sys</span>

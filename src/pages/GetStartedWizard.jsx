@@ -161,21 +161,21 @@ const GetStartedWizard = () => {
       name: 'Plan Free',
       accent: 'border-white/10 text-gray-400 bg-white/5',
       price: '$0 USD',
-      features: ['1 Bot de WhatsApp', 'Constructor de flujos', 'Botones de acción', 'Límite 50 mensajes/mes', 'Solo Baileys QR']
+      features: ['1 Bot activo (15 días)', 'Constructor de flujos', 'Botones de acción', '20-50 mensajes totales', 'Solo Baileys QR']
     },
     {
       id: 'standard',
       name: 'Plan Standard',
       accent: 'border-primary/40 text-primary bg-primary/5 shadow-md shadow-primary/5',
       price: '$0 USD (Beta Pioneros)',
-      features: ['Mensajes Ilimitados', 'Hasta 3 Bots activos', 'Constructor multimedia', 'Monitor en vivo', 'Solo Baileys QR']
+      features: ['Mensajes Ilimitados', '1 Bot activo', 'Bots extra con 50% desc', 'Monitor en vivo', 'Solo Baileys QR']
     },
     {
       id: 'vip',
       name: 'Plan VIP',
       accent: 'border-amber-500/40 text-amber-500 bg-amber-500/5 shadow-md shadow-amber-500/5',
       price: `$${prices.vip.amount} ${prices.vip.currency}`,
-      features: ['Meta Cloud API Oficial', '100% en la nube (0 celular)', 'Hasta 10 Bots activos', 'Soporte Slack 24/7', 'Monitor multi-agente']
+      features: ['Meta Cloud API Oficial', '2 Bots incluidos (Ilimitados)', 'Bots extra con 50% desc', 'Soporte Slack 24/7', 'Monitor multi-agente']
     }
   ];
 
@@ -231,7 +231,7 @@ const GetStartedWizard = () => {
       <header className="border-b border-white/5 bg-dark-300/60 backdrop-blur-md px-6 py-4 z-20">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <Link to="/" className="flex items-center gap-3">
-            <span className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center font-black text-white text-base tracking-tighter">RW</span>
+            <img src="/redwire-favicon.png" alt="RedWire Logo" className="w-9 h-9 rounded-lg" />
             <span className="text-lg font-black text-white tracking-tighter uppercase font-mono">
               RedWire<span className="text-primary">Sys</span>
             </span>

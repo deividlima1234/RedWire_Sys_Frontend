@@ -62,7 +62,7 @@ const MainLayout = () => {
             </svg>
           </button>
           <h1 className="text-lg font-black text-primary font-mono tracking-widest flex items-center">
-            <div className="w-6 h-6 bg-primary rounded mr-1.5 flex items-center justify-center text-dark-300 text-xs font-bold font-mono">R</div>
+            <img src="/redwire-favicon.png" alt="Logo" className="w-7 h-7 mr-2 rounded-lg" />
             REDWIRE<span className="text-gray-400 font-light text-xs">SYS</span>
           </h1>
           <div 
@@ -86,17 +86,17 @@ const MainLayout = () => {
           <div className={`p-5 border-b border-dark-100 flex items-center ${isSidebarCollapsed ? 'md:justify-center justify-between' : 'justify-between'}`}>
             {!isSidebarCollapsed ? (
               <h1 className="text-xl font-black text-primary font-mono tracking-widest flex items-center truncate animate-fade-in">
-                <div className="w-8 h-8 bg-primary rounded mr-2 flex items-center justify-center text-dark-300 flex-shrink-0">R</div>
+                <img src="/redwire-favicon.png" alt="Logo" className="w-8 h-8 mr-2 rounded-lg shadow-lg shadow-primary/20" />
                 REDWIRE<span className="text-gray-400 font-light">SYS</span>
               </h1>
             ) : (
-              <div 
-                className="w-8 h-8 bg-primary rounded flex items-center justify-center text-dark-300 font-bold font-mono animate-fade-in flex-shrink-0 cursor-pointer md:block hidden" 
-                onClick={() => setIsSidebarCollapsed(false)}
-                title="Expandir Menú"
-              >
-                R
-              </div>
+                <img 
+                  src="/redwire-favicon.png" 
+                  alt="Logo" 
+                  className="w-8 h-8 rounded-lg animate-fade-in flex-shrink-0 cursor-pointer md:block hidden shadow-lg shadow-primary/20" 
+                  onClick={() => setIsSidebarCollapsed(false)}
+                  title="Expandir Menú"
+                />
             )}
             
             {/* Mobile close button inside sidebar */}
