@@ -68,6 +68,13 @@ const FlowBuilder = () => {
   const [isPasteJsonOpen, setIsPasteJsonOpen] = useState(false);
   const [pasteJsonText, setPasteJsonText] = useState('');
   const [validationError, setValidationError] = useState(null);
+  const [notification, setNotification] = useState(null);
+
+  const showNotification = useCallback((message, type = 'success') => {
+    setNotification({ message, type });
+    // Auto-hide after 5 seconds
+    setTimeout(() => setNotification(null), 5000);
+  }, []);
 
   // Historial para deshacer / rehacer
   const [history, setHistory] = useState({
@@ -394,7 +401,7 @@ const FlowBuilder = () => {
         
         // Force file input reset
         event.target.value = null;
-        alert('¡Plantilla importada con éxito! 🎉 Guarda los cambios para desplegarlos.');
+        showNotification('¡Plantilla importada con éxito! 🎉 Guarda los cambios para desplegarlos.', 'success');
       } catch (err) {
         console.error('Failed to parse import JSON', err);
         setValidationError({
@@ -440,7 +447,7 @@ const FlowBuilder = () => {
       
       setPasteJsonText('');
       setIsPasteJsonOpen(false);
-      alert('¡Código JSON importado con éxito! 🎉 Guarda los cambios para desplegarlos.');
+      showNotification('¡Código JSON importado con éxito! 🎉 Guarda los cambios para desplegarlos.', 'success');
     } catch (err) {
       console.error('Failed to parse import JSON text', err);
       setValidationError({
@@ -803,7 +810,7 @@ const FlowBuilder = () => {
                 onClick={() => {
                   setUpgradeAlert(null);
                   setIsTemplateModalOpen(false);
-                  alert("Por favor, ve al Dashboard y haz clic en el botón de Mejorar Plan para ascender tu suscripción de inmediato. ¡Te esperamos!");
+                  showNotification("Por favor, ve al Dashboard y haz clic en el botón de Mejorar Plan para ascender tu suscripción de inmediato. ¡Te esperamos!", "info");
                 }}
                 className={`flex-1 py-3 font-black rounded-xl text-sm transition-all shadow-lg flex items-center justify-center gap-2 ${
                   upgradeAlert.requiredTier === 'VIP' 
@@ -851,7 +858,7 @@ const FlowBuilder = () => {
                       const text = await navigator.clipboard.readText();
                       setPasteJsonText(text);
                     } catch (err) {
-                      alert('No se pudo acceder al portapapeles automáticamente. Por favor pega usando Ctrl+V.');
+                      showNotification('No se pudo acceder al portapapeles automáticamente. Por favor pega usando Ctrl+V.', 'error');
                     }
                   }}
                   className="absolute bottom-4 right-4 bg-dark-100 hover:bg-dark-100/80 text-gray-300 hover:text-white px-3 py-1.5 rounded-xl text-[10px] font-black tracking-wider border border-dark-100 transition-all flex items-center gap-1 uppercase"
@@ -936,6 +943,40 @@ const FlowBuilder = () => {
                 Entendido, ir a corregir
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Sistema de Notificaciones Flotantes */}
+      {notification && (
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] animate-in fade-in slide-in-from-bottom-4 duration-300">
+          <div className={`px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 border backdrop-blur-md ${
+            notification.type === 'success' ? 'bg-green-500/10 border-green-500/30 text-green-400' :
+            notification.type === 'error' ? 'bg-red-500/10 border-red-500/30 text-red-400' :
+            'bg-blue-500/10 border-blue-500/30 text-blue-400'
+          }`}>
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold shadow-lg ${
+              notification.type === 'success' ? 'bg-green-500 text-dark-300' :
+              notification.type === 'error' ? 'bg-red-500 text-white' :
+              'bg-blue-500 text-white'
+            }`}>
+              {notification.type === 'success' ? '✓' : notification.type === 'error' ? '!' : 'i'}
+            </div>
+            <div className="flex flex-col">
+              <span className="text-xs font-black uppercase tracking-wider">
+                {notification.type === 'success' ? 'Operación Exitosa' : 
+                 notification.type === 'error' ? 'Error del Sistema' : 'Aviso de RedWire'}
+              </span>
+              <p className="text-[11px] font-medium leading-tight">
+                {notification.message}
+              </p>
+            </div>
+            <button 
+              onClick={() => setNotification(null)}
+              className="ml-4 text-gray-500 hover:text-white transition-colors"
+            >
+              ✕
+            </button>
           </div>
         </div>
       )}
