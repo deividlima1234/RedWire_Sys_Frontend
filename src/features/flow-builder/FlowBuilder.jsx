@@ -343,16 +343,8 @@ const FlowBuilder = () => {
     if (!reactFlowInstance) return;
     const flowObject = reactFlowInstance.toObject();
 
-    // Auto-detect tier requirement based on node types
-    let tierRequirement = 'FREE';
-    const hasInteractive = flowObject.nodes.some(n => n.type === 'interactive');
-    const hasMedia = flowObject.nodes.some(n => n.type === 'media');
-
-    if (hasInteractive) {
-      tierRequirement = 'VIP';
-    } else if (hasMedia) {
-      tierRequirement = 'STANDARD';
-    }
+    // Simplified: Any plan can export/import
+    const tierRequirement = 'FREE';
 
     const exportData = {
       appName: 'RedWire System',
@@ -390,17 +382,8 @@ const FlowBuilder = () => {
           return;
         }
 
-        // Tier validation
-        const requiredTier = data.tierRequirement || 'FREE';
-        const userTier = user?.subscriptionTier || 'FREE';
-
-        // Check compatibility
-        const isCompatible = checkTierCompatibility(userTier, requiredTier);
-        if (!isCompatible) {
-          setUpgradeAlert({ requiredTier, actionType: 'importar' });
-          return;
-        }
-
+        // Tier validation removed to allow all plans to import
+    
         // Saneamiento de datos para evitar caídas de coordenadas en React Flow
         const sanitizedData = sanitizeFlowData(data);
 
@@ -445,17 +428,8 @@ const FlowBuilder = () => {
         return;
       }
 
-      // Tier validation
-      const requiredTier = data.tierRequirement || 'FREE';
-      const userTier = user?.subscriptionTier || 'FREE';
-
-      // Check compatibility
-      const isCompatible = checkTierCompatibility(userTier, requiredTier);
-      if (!isCompatible) {
-        setUpgradeAlert({ requiredTier, actionType: 'importar texto json' });
-        return;
-      }
-
+      // Tier validation removed to allow all plans to import
+    
       // Saneamiento de datos para evitar caídas de coordenadas en React Flow
       const sanitizedData = sanitizeFlowData(data);
 
